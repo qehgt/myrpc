@@ -20,7 +20,10 @@ public:
       {}
     ~callable();
 
-    const future_data& get_future() const { return f; }
+    future_data& get_future() { return f; }
+    data_type get_data() { 
+        return f.get(); 
+    }
 
 
 protected:
@@ -38,12 +41,13 @@ public:
 
 protected:
     session_id_type current_id;
-    typedef std::map<session_id_type, future_data> future_map_type;
+    typedef boost::shared_ptr<boost::promise<data_type> > promise_type;
+    typedef std::map<session_id_type, promise_type> promise_map_type;
     socket s;
 
     typedef boost::recursive_mutex mutex_type;
     mutex_type mutex;
-    future_map_type future_map;
+    promise_map_type promise_map;
 };
 
 callable::~callable()
@@ -57,10 +61,8 @@ callable::~callable()
 void session::remove_unused_callable(session_id_type id)
 {
     mutex_type::scoped_lock lock(mutex);
-    future_map.erase(id);
+    promise_map.erase(id);
 }
-
-
 
 callable session::create_call()
 {
@@ -68,13 +70,18 @@ callable session::create_call()
 
     // create new future
     session_id_type id = current_id++;
-    future_data new_future_data = future_map[id];
-    
-    return callable(id, new_future_data, shared_from_this());
+    promise_type new_promise(new boost::promise<data_type>);
+    promise_map[id] = new_promise;
+    future_data f(new_promise->get_future());
+    return callable(id, f, shared_from_this());
 }
+
 int main()
 {
     boost::shared_ptr<session> s(new session);
-    s->create_call();
+    callable call = s->create_call();
+    future_data& f = call.get_future();
+    // f.get(); // wait until result
+
 	return 0;
 }
