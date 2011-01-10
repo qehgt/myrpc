@@ -205,17 +205,21 @@ void session::process_message(msgpack::object obj, msgpack::rpc::auto_zone z)
         {
             msg_response<object, object> res;
             obj.convert(&res);
-            //static_cast<MixIn*>(this)->on_response(
-            //    res.msgid, res.result, res.error, z);
+            shared_request sr(new request_impl(
+                shared_message_sendable(new boost_message_sendable(get_socket())),
+                res.msgid, res.result, res.error, z));
+            dispatcher->dispatch(request(sr));
         }
         break;
 
     case NOTIFY: 
         {
-            msg_notify<object, object> req;
-            obj.convert(&req);
-            //static_cast<MixIn*>(this)->on_notify(
-            //    req.method, req.param, z);
+            msg_notify<object, object> notify;
+            obj.convert(&notify);
+            shared_request sr(new request_impl(
+                shared_message_sendable(new boost_message_sendable(get_socket())),
+                0, notify.method, notify.param, z));
+            dispatcher->dispatch(request(sr));
         }
         break;
 
