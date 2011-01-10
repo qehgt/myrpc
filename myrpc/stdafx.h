@@ -18,3 +18,5 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/future.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>

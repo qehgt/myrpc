@@ -4,7 +4,7 @@
 #include "stdafx.h"
 
 class session;
-class socket {};
+class my_socket {};
 struct data_type {
     int i;
     float f;
@@ -37,13 +37,13 @@ public:
     session() : current_id(0) {}
 
     callable create_call();
-    void remove_unused_callable(session_id_type id);
+    void remove_unused_callable(session_id_type id, bool reset_data);
 
 protected:
     session_id_type current_id;
     typedef boost::shared_ptr<boost::promise<data_type> > promise_type;
     typedef std::map<session_id_type, promise_type> promise_map_type;
-    socket s;
+    my_socket s;
 
     typedef boost::recursive_mutex mutex_type;
     mutex_type mutex;
@@ -54,13 +54,19 @@ callable::~callable()
 {
     if(boost::shared_ptr<session> r = weak_session_ptr.lock())
     {
-        r->remove_unused_callable(id);
+        r->remove_unused_callable(id, !f.has_value());
     }
 }
 
-void session::remove_unused_callable(session_id_type id)
+void session::remove_unused_callable(session_id_type id, bool reset_data)
 {
     mutex_type::scoped_lock lock(mutex);
+
+    // There is no clients for this 'promise',
+    // so, we can setup it to default value before deleting.
+    // The only reason to do it is calm debuggers that detect throwning exception in boost library
+    if (reset_data)
+        promise_map[id]->set_value(data_type());
     promise_map.erase(id);
 }
 
@@ -78,10 +84,14 @@ callable session::create_call()
 
 int main()
 {
+    boost::asio::io_service io;
+    boost::thread t(boost::bind(&boost::asio::io_service::run, &io));
+
     boost::shared_ptr<session> s(new session);
     callable call = s->create_call();
     future_data& f = call.get_future();
     // f.get(); // wait until result
 
-	return 0;
+    t.join();
+    return 0;
 }
