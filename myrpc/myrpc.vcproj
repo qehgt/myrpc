@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;F:\Projects\msgpack_all\OUT\include\msgpack\rpc"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MP_MEMORY_BOOST_ORG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,8 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="msgpackd.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="E:\dev\CoreRelated_CBL\Boost\bin\i386_win"
+				AdditionalLibraryDirectories="E:\dev\CoreRelated_CBL\Boost\bin\i386_win;F:\Projects\msgpack_all\OUT\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -116,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include"
+				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -135,8 +136,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="msgpack.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="E:\dev\CoreRelated_CBL\Boost\bin\i386_win"
+				AdditionalLibraryDirectories="E:\dev\CoreRelated_CBL\Boost\bin\i386_win;F:\Projects\msgpack_all\OUT\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -177,6 +179,26 @@
 			<File
 				RelativePath=".\myrpc.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\request.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp"

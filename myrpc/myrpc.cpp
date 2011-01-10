@@ -3,6 +3,106 @@
 
 #include "stdafx.h"
 
+class dispatcher_type {
+public:
+    virtual ~dispatcher_type() {}
+
+    virtual void dispatch(msgpack::rpc::request req) = 0;
+};
+typedef boost::shared_ptr<dispatcher_type> shared_dispatcher;
+
+
+class boost_message_sendable : public msgpack::rpc::message_sendable {
+public:
+    boost_message_sendable(boost::asio::ip::tcp::socket& socket) 
+        : s(socket) 
+      {}
+
+    void send_data(msgpack::sbuffer* sbuf)
+    {
+        s.send(boost::asio::buffer(sbuf->data(), sbuf->size()));
+        ::free(sbuf->data());
+        sbuf->release();
+    }
+
+    void send_data(msgpack::rpc::auto_vreflife vbuf)
+    {
+        const struct iovec* vec = vbuf->vector();
+        size_t veclen = vbuf->vector_size();
+
+        for(size_t i = 0; i < veclen; ++i)
+            s.send(boost::asio::buffer(vec[i].iov_base, vec[i].iov_len));
+    }
+
+protected:
+    boost::asio::ip::tcp::socket& s;
+};
+
+class myecho : public dispatcher_type {
+public:
+    typedef msgpack::rpc::request request;
+
+	void dispatch(request req);
+
+	void add(request req, int a1, int a2)
+	{
+		req.result(a1 + a2);
+	}
+
+	void echo(request req, const std::string& msg)
+	{
+		req.result(msg);
+	}
+
+	void echo_huge(request req, const msgpack::type::raw_ref& msg)
+	{
+		req.result(msg);
+	}
+
+	void err(request req)
+	{
+		req.error(std::string("always fail"));
+	}
+};
+
+void myecho::dispatch(request req)
+try {
+    std::string method;
+    req.method().convert(&method);
+
+    if(method == "add") {
+        msgpack::type::tuple<int, int> params;
+        req.params().convert(&params);
+        add(req, params.get<0>(), params.get<1>());
+
+    } else if(method == "echo") {
+        msgpack::type::tuple<std::string> params;
+        req.params().convert(&params);
+        echo(req, params.get<0>());
+
+    } else if(method == "echo_huge") {
+        msgpack::type::tuple<msgpack::type::raw_ref> params;
+        req.params().convert(&params);
+        echo_huge(req, params.get<0>());
+
+    } else if(method == "err") {
+        msgpack::type::tuple<> params;
+        req.params().convert(&params);
+        err(req);
+
+    } else {
+        req.error(msgpack::rpc::NO_METHOD_ERROR);
+    }
+
+} catch (msgpack::type_error&) {
+    req.error(msgpack::rpc::ARGUMENT_ERROR);
+    return;
+
+} catch (std::exception& e) {
+    req.error(std::string(e.what()));
+    return;
+}
+
 class session;
 struct data_type {
     int i;
@@ -33,9 +133,12 @@ protected:
 
 class session : public boost::enable_shared_from_this<session> {
 public:
-    session(boost::asio::io_service& io_service)
-        : socket(io_service)
-    {}
+    session(boost::asio::io_service& io_service, shared_dispatcher dispatcher)
+        : socket(io_service),
+        dispatcher(dispatcher)
+    {
+        unpacker.reserve_buffer(max_length);
+    }
 
     boost::asio::ip::tcp::socket& get_socket()
     {
@@ -44,39 +147,22 @@ public:
 
     void start()
     {
-        socket.async_read_some(boost::asio::buffer(buff, max_length),
+        socket.async_read_some(boost::asio::buffer(unpacker.buffer(), max_length),
             boost::bind(&session::handle_read, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
     }
 
-    void handle_read(const boost::system::error_code& error,
-        size_t bytes_transferred)
-    {
-        if (!error)
-        {
-            // process input data...
-
-            /*
-            boost::asio::async_write(socket,
-                boost::asio::buffer(data, bytes_transferred),
-                boost::bind(&session::handle_write, this,
-                boost::asio::placeholders::error));
-                */
-        }
-        else
-        {
-            socket.shutdown(boost::asio::socket_base::shutdown_both);
-            socket.close();
-        }
-    }
-
-
-
     callable create_call();
     void remove_unused_callable(session_id_type id, bool reset_data);
 
 protected:
+
+    void handle_read(const boost::system::error_code& error,
+        size_t bytes_transferred);
+
+    void process_message(msgpack::object obj, msgpack::rpc::auto_zone z);
+
     session_id_type current_id;
     typedef boost::shared_ptr<boost::promise<data_type> > promise_type;
     typedef std::map<session_id_type, promise_type> promise_map_type;
@@ -86,10 +172,87 @@ protected:
     promise_map_type promise_map;
 
 
-    enum { max_length = 1024 };
-    char buff[max_length];
+    enum { max_length = 32 * 1024 };
     boost::asio::ip::tcp::socket socket;
+
+    msgpack::unpacker unpacker;
+    shared_dispatcher dispatcher;
 };
+
+
+void session::process_message(msgpack::object obj, msgpack::rpc::auto_zone z)
+{
+    using namespace msgpack;
+    using namespace msgpack::rpc;
+
+    msg_rpc rpc;
+    obj.convert(&rpc); // ~~~ TODO: try/catch block ?
+
+    switch(rpc.type) 
+    {
+    case REQUEST: 
+        {
+            msg_request<object, object> req;
+            obj.convert(&req);
+            shared_request sr(new request_impl(
+                shared_message_sendable(new boost_message_sendable(get_socket())),
+                req.msgid, req.method, req.param, z));
+            dispatcher->dispatch(request(sr));
+        }
+        break;
+
+    case RESPONSE: 
+        {
+            msg_response<object, object> res;
+            obj.convert(&res);
+            //static_cast<MixIn*>(this)->on_response(
+            //    res.msgid, res.result, res.error, z);
+        }
+        break;
+
+    case NOTIFY: 
+        {
+            msg_notify<object, object> req;
+            obj.convert(&req);
+            //static_cast<MixIn*>(this)->on_notify(
+            //    req.method, req.param, z);
+        }
+        break;
+
+    default:
+        throw msgpack::type_error();
+    }
+}
+
+void session::handle_read(const boost::system::error_code& error, size_t bytes_transferred)
+{
+    using namespace msgpack;
+    using namespace msgpack::rpc;
+    if (!error)
+    {
+        printf("bytes_transferred = %d\n", int(bytes_transferred));
+        // process input data...
+        unpacker.buffer_consumed(bytes_transferred);
+        msgpack::unpacked result;
+        while(unpacker.next(&result)) {
+            msgpack::object obj = result.get();
+
+            std::auto_ptr<msgpack::zone> z = result.zone();
+            process_message(obj, z);
+        }
+
+        socket.async_read_some(boost::asio::buffer(unpacker.buffer(), max_length),
+            boost::bind(&session::handle_read, this,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+    }
+    else
+    {
+        socket.shutdown(boost::asio::socket_base::shutdown_both);
+        socket.close();
+    }
+}
+
 
 callable::~callable()
 {
@@ -123,6 +286,7 @@ callable session::create_call()
     return callable(id, f, shared_from_this());
 }
 
+
 int main()
 {
     using namespace boost::asio;
@@ -131,7 +295,8 @@ int main()
 
     ip::tcp::acceptor acceptor(io, ip::tcp::endpoint(ip::tcp::v4(), PORT));
 
-    boost::shared_ptr<session> s(new session(io));
+    shared_dispatcher dispatcher(new myecho());
+    boost::shared_ptr<session> s(new session(io, dispatcher));
     acceptor.accept(s->get_socket());
     s->start();
     boost::thread t(boost::bind(&io_service::run, &io));
@@ -143,8 +308,6 @@ int main()
     // f.get(); // wait until result
     */
 
-    
-    //boost::this_thread::sleep(boost::posix_time::seconds(1000));
     t.join();
     return 0;
 }

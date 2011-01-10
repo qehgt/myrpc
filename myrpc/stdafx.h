@@ -20,3 +20,8 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+
+#include <msgpack.hpp>
+#include <msgpack/rpc/protocol.h>
+#include <msgpack/rpc/request.h>
+#include "request_impl.h"
