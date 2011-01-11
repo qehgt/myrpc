@@ -70,22 +70,22 @@ try {
     std::string method;
     req.method().convert(&method);
 
-    if(method == "add") {
+    if (method == "add") {
         msgpack::type::tuple<int, int> params;
         req.params().convert(&params);
         add(req, params.get<0>(), params.get<1>());
 
-    } else if(method == "echo") {
+    } else if (method == "echo") {
         msgpack::type::tuple<std::string> params;
         req.params().convert(&params);
         echo(req, params.get<0>());
 
-    } else if(method == "echo_huge") {
+    } else if (method == "echo_huge") {
         msgpack::type::tuple<msgpack::type::raw_ref> params;
         req.params().convert(&params);
         echo_huge(req, params.get<0>());
 
-    } else if(method == "err") {
+    } else if (method == "err") {
         msgpack::type::tuple<> params;
         req.params().convert(&params);
         err(req);
@@ -275,7 +275,7 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
 
 callable::~callable()
 {
-    if(boost::shared_ptr<session> r = weak_session_ptr.lock())
+    if (boost::shared_ptr<session> r = weak_session_ptr.lock())
     {
         r->remove_unused_callable(id, !f.has_value());
     }
