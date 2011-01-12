@@ -1,4 +1,4 @@
-Program("rcp_test", ["myrpc.cpp", "request.cc"], 
+Program("rpc_test", ["myrpc.cpp", "request.cc"], 
         CPPPATH = ["../../OUT/include",
                   "../../OUT/include/msgpack/rpc",
                   "/home/vasily/Projects/efr_new/Boost/include"],
