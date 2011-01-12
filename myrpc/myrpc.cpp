@@ -11,6 +11,15 @@ public:
 };
 typedef boost::shared_ptr<dispatcher_type> shared_dispatcher;
 
+class dummy_dispatcher_type : public dispatcher_type {
+public:
+    void dispatch(msgpack::rpc::request req)
+    {
+        req.error(msgpack::rpc::NO_METHOD_ERROR);
+    }
+};
+
+
 
 class boost_message_sendable : public msgpack::rpc::message_sendable {
 public:
@@ -104,23 +113,29 @@ try {
 }
 
 class session;
-struct object_holder {
+struct msgpack_object_holder {
     msgpack::object obj;
     boost::shared_ptr<msgpack::zone> z;
+
+    msgpack_object_holder() {}
+    msgpack_object_holder(msgpack::object o, msgpack::rpc::auto_zone az)
+        : obj(o), z(az.release())
+    {
+    }
 };
 
-typedef int session_id_type;
-typedef boost::shared_future<object_holder> future_data;
+typedef boost::uint32_t session_id_type;
+typedef boost::shared_future<msgpack_object_holder> future_data;
 
-class callable {
+class callable_type : public boost::enable_shared_from_this<callable_type> {
 public:
-    callable(session_id_type id, const future_data& future_result, const boost::shared_ptr<session>& session) : 
+    callable_type(session_id_type id, const future_data& future_result, const boost::shared_ptr<session>& session) : 
       id(id), f(future_result), weak_session_ptr(session)
       {}
-    ~callable();
+    ~callable_type();
 
     future_data& get_future() { return f; }
-    object_holder get_data() { 
+    msgpack_object_holder get_data() { 
         return f.get(); 
     }
 
@@ -130,11 +145,13 @@ protected:
     future_data f;
     boost::weak_ptr<session> weak_session_ptr;
 };
+typedef boost::shared_ptr<callable_type> callable;
 
 class session : public boost::enable_shared_from_this<session> {
 public:
     session(boost::asio::io_service& io_service, shared_dispatcher dispatcher)
-        : socket(io_service),
+        : current_id(0),
+        socket(io_service),
         dispatcher(dispatcher)
     {
         unpacker.reserve_buffer(max_length);
@@ -153,18 +170,29 @@ public:
             boost::asio::placeholders::bytes_transferred));
     }
 
-    callable create_call();
+    inline callable call(const std::string& name);
+
+    template <typename A1>
+    inline callable call(const std::string& name, const A1& a1);
+
+    template <typename A1, typename A2>
+    inline callable call(const std::string& name, const A1& a1, const A2& a2);
+
+
     void remove_unused_callable(session_id_type id, bool reset_data);
 
 protected:
+
+    callable create_call(session_id_type id);
+    void process_response(msgpack::rpc::msgid_t msgid, msgpack::object obj, msgpack::rpc::auto_zone z);
 
     void handle_read(const boost::system::error_code& error,
         size_t bytes_transferred);
 
     void process_message(msgpack::object obj, msgpack::rpc::auto_zone z);
 
-    session_id_type current_id;
-    typedef boost::shared_ptr<boost::promise<object_holder> > promise_type;
+    volatile boost::uint32_t current_id;
+    typedef boost::shared_ptr<boost::promise<msgpack_object_holder> > promise_type;
     typedef std::map<session_id_type, promise_type> promise_map_type;
 
     typedef boost::recursive_mutex mutex_type;
@@ -225,7 +253,7 @@ void session::process_message(msgpack::object obj, msgpack::rpc::auto_zone z)
             shared_request sr(new request_impl(
                 shared_message_sendable(new boost_message_sendable(get_socket())),
                 rpc.msgid, rpc.method, rpc.param, z));
-            dispatcher->dispatch(request(sr));
+            process_response(rpc.msgid, rpc.param, z);
         }
         break;
 
@@ -234,7 +262,7 @@ void session::process_message(msgpack::object obj, msgpack::rpc::auto_zone z)
             shared_request sr(new request_impl(
                 shared_message_sendable(new boost_message_sendable(get_socket())),
                 0, rpc.method, rpc.param, z));
-            dispatcher->dispatch(request(sr));
+            // dispatcher->dispatch(request(sr));
         }
         break;
 
@@ -273,7 +301,7 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
 }
 
 
-callable::~callable()
+callable_type::~callable_type()
 {
     if (boost::shared_ptr<session> r = weak_session_ptr.lock())
     {
@@ -289,21 +317,89 @@ void session::remove_unused_callable(session_id_type id, bool reset_data)
     // so, we can setup it to default value before deleting.
     // The only reason to do it is calm debuggers that detect throwning exception in boost library
     if (reset_data)
-        promise_map[id]->set_value(object_holder());
+        promise_map[id]->set_value(msgpack_object_holder());
     promise_map.erase(id);
 }
 
-callable session::create_call()
+void session::process_response(msgpack::rpc::msgid_t msgid, msgpack::object obj, msgpack::rpc::auto_zone z)
+{
+    mutex_type::scoped_lock lock(mutex);
+
+    promise_map_type::iterator i = promise_map.find(msgid);
+    if (i != promise_map.end())
+        i->second->set_value(msgpack_object_holder(obj, z));
+}
+
+callable session::create_call(session_id_type id)
 {
     mutex_type::scoped_lock lock(mutex);
 
     // create new future
-    session_id_type id = current_id++;
-    promise_type new_promise(new boost::promise<object_holder>);
+    promise_type new_promise(new boost::promise<msgpack_object_holder>);
     promise_map[id] = new_promise;
     future_data f(new_promise->get_future());
-    return callable(id, f, shared_from_this());
+    return callable(new callable_type(id, f, shared_from_this()));
 }
+
+inline callable session::call(const std::string& name)
+{
+    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+
+    msgpack::sbuffer sbuf;
+    typedef msgpack::type::tuple<> Params;
+    message_rpc<std::string, Params> msg;
+    msg.type = msgpack::rpc::REQUEST;
+    msg.msgid = id;
+    msg.method = name;
+    msg.param = Params();
+
+    msgpack::pack(sbuf, msg);
+    callable ret = create_call(id);
+    get_socket().send(boost::asio::buffer(sbuf.data(), sbuf.size()));
+
+    return ret;
+}
+
+template <typename A1>
+inline callable session::call(const std::string& name, const A1& a1)
+{
+    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+
+    msgpack::sbuffer sbuf;
+    typedef msgpack::type::tuple<A1> Params;
+    message_rpc<std::string, Params> msg;
+    msg.type = msgpack::rpc::REQUEST;
+    msg.msgid = id;
+    msg.method = name;
+    msg.param = Params(a1);
+
+    msgpack::pack(sbuf, msg);
+    callable ret = create_call(id);
+    get_socket().send(boost::asio::buffer(sbuf.data(), sbuf.size()));
+
+    return ret;
+}
+
+template <typename A1, typename A2>
+inline callable session::call(const std::string& name, const A1& a1, const A2& a2)
+{
+    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+
+    msgpack::sbuffer sbuf;
+    typedef msgpack::type::tuple<A1, A2> Params;
+    message_rpc<std::string, Params> msg;
+    msg.type = msgpack::rpc::REQUEST;
+    msg.msgid = id;
+    msg.method = name;
+    msg.param = Params(a1, a2);
+
+    msgpack::pack(sbuf, msg);
+    callable ret = create_call(id);
+    get_socket().send(boost::asio::buffer(sbuf.data(), sbuf.size()));
+
+    return ret;
+}
+
 
 void run_client_test()
 {
@@ -318,35 +414,23 @@ void run_client_test()
         tcp::resolver::query query(tcp::v4(), "127.0.0.1", PORT);
         tcp::resolver::iterator iterator = resolver.resolve(query);
 
-        tcp::socket s(io_client);
-        s.connect(*iterator);
+        shared_dispatcher dispatcher(new dummy_dispatcher_type());
+        boost::shared_ptr<session> s(new session(io_client, dispatcher));
 
-        msgpack::sbuffer sbuf;
-        typedef msgpack::type::tuple<int, int> Params;
-        message_rpc<std::string, Params> msg;
-        msg.type = msgpack::rpc::REQUEST;
-        msg.msgid = 12;
-        msg.method = "add";
-        msg.param = Params(-14, 77);
+        s->get_socket().connect(*iterator);
+        s->start();
+        boost::thread t(boost::bind(&io_service::run, &io_client));
 
-        msgpack::pack(sbuf, msg);
-        s.send(boost::asio::buffer(sbuf.data(), sbuf.size()));
+        callable c = s->call("add", 12, 13);
 
-        enum { max_length = 32 * 1024 };
-        msgpack::unpacker unpacker;
-        unpacker.reserve_buffer(max_length);
-        
-        size_t r = s.read_some(boost::asio::buffer(unpacker.buffer(), max_length));
-        unpacker.buffer_consumed(r);
-        
-        msgpack::unpacked result;
-        while (unpacker.next(&result)) {
-            message_rpc<object, object> rpc;
-            result.get().convert(&rpc);
-            r += 0;
-        }
+        msgpack_object_holder tmp = c->get_data();
 
-        r += 0;
+        int i = tmp.obj.as<int>();
+
+        // tmp way for closing session
+        s->get_socket().shutdown(boost::asio::socket_base::shutdown_both);
+        s->get_socket().close();
+        t.join();
     }
     catch (const std::exception& e)
     {
@@ -361,13 +445,12 @@ int main()
     const int PORT = 18811;
     io_service io;
 
-    ip::tcp::acceptor acceptor(io, ip::tcp::endpoint(ip::tcp::v4(), PORT));
-
     shared_dispatcher dispatcher(new myecho());
     boost::shared_ptr<session> s(new session(io, dispatcher));
 
     boost::thread t_client(run_client_test);
 
+    ip::tcp::acceptor acceptor(io, ip::tcp::endpoint(ip::tcp::v4(), PORT));
     acceptor.accept(s->get_socket());
     s->start();
     boost::thread t(boost::bind(&io_service::run, &io));

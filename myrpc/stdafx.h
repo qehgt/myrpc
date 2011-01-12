@@ -20,6 +20,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <boost/interprocess/detail/atomic.hpp>
 
 #include <msgpack.hpp>
 #include <msgpack/rpc/protocol.h>
