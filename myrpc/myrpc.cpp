@@ -135,10 +135,11 @@ public:
     ~callable_type();
 
     future_data& get_future() { return f; }
-    msgpack_object_holder get_data() { 
-        return f.get(); 
-    }
 
+    template<typename T>
+    T get() { 
+        return f.get().obj.as<T>();
+    }
 
 protected:
     session_id_type id;
@@ -293,11 +294,6 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
     }
-    else
-    {
-        socket.shutdown(boost::asio::socket_base::shutdown_both);
-        socket.close();
-    }
 }
 
 
@@ -421,15 +417,12 @@ void run_client_test()
         s->start();
         boost::thread t(boost::bind(&io_service::run, &io_client));
 
-        callable c = s->call("add", 12, 13);
+        int i = s->call("add", 12, 13)->get<int>();
+        std::string str = s->call("echo", std::string("aaaBBB"))->get<std::string>();
 
-        msgpack_object_holder tmp = c->get_data();
+        // close session
+        s.reset();
 
-        int i = tmp.obj.as<int>();
-
-        // tmp way for closing session
-        s->get_socket().shutdown(boost::asio::socket_base::shutdown_both);
-        s->get_socket().close();
         t.join();
     }
     catch (const std::exception& e)
