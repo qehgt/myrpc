@@ -136,17 +136,27 @@ public:
 
     future_data& get_future() { return f; }
 
-    template<typename T>
-    T get() { 
-        return f.get().obj.as<T>();
-    }
-
 protected:
     session_id_type id;
     future_data f;
     boost::weak_ptr<session> weak_session_ptr;
 };
-typedef boost::shared_ptr<callable_type> callable;
+
+class callable {
+public:
+    callable(boost::shared_ptr<callable_type> s)
+        : c(s)
+    {}
+
+    template<typename T>
+    T get() { 
+        return c->get_future().get().obj.as<T>();
+    }
+
+protected:
+    boost::shared_ptr<callable_type> c;
+};
+//typedef boost::shared_ptr<callable_type> callable;
 
 class session : public boost::enable_shared_from_this<session> {
 public:
@@ -334,7 +344,7 @@ callable session::create_call(session_id_type id)
     promise_type new_promise(new boost::promise<msgpack_object_holder>);
     promise_map[id] = new_promise;
     future_data f(new_promise->get_future());
-    return callable(new callable_type(id, f, shared_from_this()));
+    return callable(boost::shared_ptr<callable_type>(new callable_type(id, f, shared_from_this())));
 }
 
 inline callable session::call(const std::string& name)
@@ -417,8 +427,8 @@ void run_client_test()
         s->start();
         boost::thread t(boost::bind(&io_service::run, &io_client));
 
-        int i = s->call("add", 12, 13)->get<int>();
-        std::string str = s->call("echo", std::string("aaaBBB"))->get<std::string>();
+        int i = s->call("add", 12, 13).get<int>();
+        std::string str = s->call("echo", std::string("aaaBBB")).get<std::string>();
 
         // close session
         s.reset();
