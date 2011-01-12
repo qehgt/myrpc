@@ -29,18 +29,26 @@ public:
 
     void send_data(msgpack::sbuffer* sbuf)
     {
-        s.send(boost::asio::buffer(sbuf->data(), sbuf->size()));
+        boost::system::error_code ec;
+        boost::asio::write(s, boost::asio::buffer(sbuf->data(), sbuf->size()),
+            boost::asio::transfer_all(), ec);
         ::free(sbuf->data());
         sbuf->release();
+
+        // TODO: what should we do with socket in case of error?
     }
 
     void send_data(msgpack::rpc::auto_vreflife vbuf)
     {
+        boost::system::error_code ec;
         const struct iovec* vec = vbuf->vector();
         size_t veclen = vbuf->vector_size();
 
-        for(size_t i = 0; i < veclen; ++i)
-            s.send(boost::asio::buffer(vec[i].iov_base, vec[i].iov_len));
+        for(size_t i = 0; i < veclen; ++i) {
+            boost::asio::write(s, boost::asio::buffer(vec[i].iov_base, vec[i].iov_len),
+                boost::asio::transfer_all(), ec);
+        }
+        // TODO: what should we do with socket in case of error?
     }
 
 protected:
@@ -156,7 +164,6 @@ public:
 protected:
     boost::shared_ptr<callable_type> c;
 };
-//typedef boost::shared_ptr<callable_type> callable;
 
 class session : public boost::enable_shared_from_this<session> {
 public:
@@ -413,9 +420,9 @@ void run_client_test()
     using namespace boost::asio::ip;
     using namespace msgpack;
     const char* PORT = "18811"; // ??
-    io_service io_client;
 
     try {
+        io_service io_client;
         tcp::resolver resolver(io_client);
         tcp::resolver::query query(tcp::v4(), "127.0.0.1", PORT);
         tcp::resolver::iterator iterator = resolver.resolve(query);
@@ -427,7 +434,9 @@ void run_client_test()
         s->start();
         boost::thread t(boost::bind(&io_service::run, &io_client));
 
-        int i = s->call("add", 12, 13).get<int>();
+        callable cc = s->call("add", -12, 13);
+        int i = cc.get<int>();
+        i = s->call("add", 12, 13).get<int>();
         std::string str = s->call("echo", std::string("aaaBBB")).get<std::string>();
 
         // close session
@@ -444,27 +453,27 @@ void run_client_test()
 
 int main()
 {
-    using namespace boost::asio;
-    const int PORT = 18811;
-    io_service io;
+    try {
+        using namespace boost::asio;
+        const int PORT = 18811;
+        io_service io;
 
-    shared_dispatcher dispatcher(new myecho());
-    boost::shared_ptr<session> s(new session(io, dispatcher));
+        shared_dispatcher dispatcher(new myecho());
+        boost::shared_ptr<session> s(new session(io, dispatcher));
 
-    boost::thread t_client(run_client_test);
+        boost::thread t_client(run_client_test);
 
-    ip::tcp::acceptor acceptor(io, ip::tcp::endpoint(ip::tcp::v4(), PORT));
-    acceptor.accept(s->get_socket());
-    s->start();
-    boost::thread t(boost::bind(&io_service::run, &io));
+        ip::tcp::acceptor acceptor(io, ip::tcp::endpoint(ip::tcp::v4(), PORT));
+        acceptor.accept(s->get_socket());
 
-    /*
-    callable call = s->create_call();
-    future_data& f = call.get_future();
-    // f.get(); // wait until result
-    */
+        s->start();
+        boost::thread t(boost::bind(&io_service::run, &io));
 
-    t.join();
-    t_client.join();
+        t.join();
+        t_client.join();
+    }
+    catch (const std::exception& e) {
+        printf("main: ex=%s\n", e.what());
+    }
     return 0;
 }
