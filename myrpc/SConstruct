@@ -1,0 +1,8 @@
+Program("rpc_test", ["myrpc.cpp", "request.cc"], 
+        CPPPATH = ["../../OUT/include",
+                  "../../OUT/include/msgpack/rpc",
+                  "/home/vasily/Projects/efr_new/Boost/include"],
+        LIBPATH = ["/home/vasily/Projects/efr_new/Boost/bin/i386_linux",
+                   "../../OUT/lib"],
+        LIBS = ["msgpack", "boost_thread", "boost_system"]
+        )
