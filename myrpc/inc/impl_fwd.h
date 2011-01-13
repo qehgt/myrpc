@@ -18,7 +18,8 @@
 #ifndef MSGPACK_RPC_IMPL_H__
 #define MSGPACK_RPC_IMPL_H__
 
-#include <mp/memory.h>
+#include <boost/weak_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace msgpack {
 namespace rpc {
@@ -26,26 +27,26 @@ namespace rpc {
 
 class future;
 class future_impl;
-typedef mp::shared_ptr<future_impl> shared_future;
+typedef boost::shared_ptr<future_impl> shared_future;
 
 class session;
 class session_impl;
-typedef mp::shared_ptr<session_impl> shared_session;
-typedef mp::weak_ptr<session_impl> weak_session;
+typedef boost::shared_ptr<session_impl> shared_session;
+typedef boost::weak_ptr<session_impl> weak_session;
 
 class session_pool;
 class session_pool_impl;
-typedef mp::shared_ptr<session_pool_impl> shared_session_pool;
-typedef mp::weak_ptr<session_pool_impl> weak_session_pool;
+typedef boost::shared_ptr<session_pool_impl> shared_session_pool;
+typedef boost::weak_ptr<session_pool_impl> weak_session_pool;
 
 class server;
 class server_impl;
-typedef mp::shared_ptr<server_impl> shared_server;
-typedef mp::weak_ptr<server_impl> weak_server;
+typedef boost::shared_ptr<server_impl> shared_server;
+typedef boost::weak_ptr<server_impl> weak_server;
 
 class request;
 class request_impl;
-typedef mp::shared_ptr<request_impl> shared_request;
+typedef boost::shared_ptr<request_impl> shared_request;
 
 
 }  // namespace rpc

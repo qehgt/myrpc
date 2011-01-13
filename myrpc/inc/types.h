@@ -19,14 +19,15 @@
 #define MSGPACK_RPC_TYPES_H__
 
 #include <msgpack.hpp>
-#include <mp/memory.h>
+#include <boost/weak_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace msgpack {
 namespace rpc {
 
 
 typedef std::auto_ptr<zone> auto_zone;
-typedef mp::shared_ptr<zone> shared_zone;
+typedef boost::shared_ptr<zone> shared_zone;
 
 
 template <typename T>
