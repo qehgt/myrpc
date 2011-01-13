@@ -3,23 +3,7 @@
 
 #include "stdafx.h"
 
-class dispatcher_type {
-public:
-    virtual ~dispatcher_type() {}
-
-    virtual void dispatch(msgpack::myrpc::request req) = 0;
-};
-typedef boost::shared_ptr<dispatcher_type> shared_dispatcher;
-
-class dummy_dispatcher_type : public dispatcher_type {
-public:
-    void dispatch(msgpack::myrpc::request req)
-    {
-        req.error(msgpack::myrpc::NO_METHOD_ERROR);
-    }
-};
-
-
+#include "dispatcher_type.h"
 
 class boost_message_sendable : public msgpack::myrpc::message_sendable {
 public:
@@ -55,7 +39,7 @@ protected:
     boost::asio::ip::tcp::socket& s;
 };
 
-class myecho : public dispatcher_type {
+class myecho : public msgpack::myrpc::dispatcher_type {
 public:
     typedef msgpack::myrpc::request request;
 
@@ -167,7 +151,7 @@ protected:
 
 class session : public boost::enable_shared_from_this<session> {
 public:
-    session(boost::asio::io_service& io_service, shared_dispatcher dispatcher)
+    session(boost::asio::io_service& io_service, msgpack::myrpc::shared_dispatcher dispatcher)
         : current_id(0),
         socket(io_service),
         dispatcher(dispatcher)
@@ -221,7 +205,7 @@ protected:
     boost::asio::ip::tcp::socket socket;
 
     msgpack::unpacker unpacker;
-    shared_dispatcher dispatcher;
+    msgpack::myrpc::shared_dispatcher dispatcher;
 };
 
 template <typename M, typename P>
@@ -426,7 +410,7 @@ void run_client_test()
         tcp::resolver::query query(tcp::v4(), "127.0.0.1", PORT);
         tcp::resolver::iterator iterator = resolver.resolve(query);
 
-        shared_dispatcher dispatcher(new dummy_dispatcher_type());
+        msgpack::myrpc::shared_dispatcher dispatcher(new msgpack::myrpc::dummy_dispatcher_type());
         boost::shared_ptr<session> s(new session(io_client, dispatcher));
 
         s->get_socket().connect(*iterator);
@@ -460,7 +444,7 @@ int main()
         const int PORT = 18811;
         io_service io;
 
-        shared_dispatcher dispatcher(new myecho());
+        msgpack::myrpc::shared_dispatcher dispatcher(new myecho());
         boost::shared_ptr<session> s(new session(io, dispatcher));
 
         boost::thread t_client(run_client_test);
