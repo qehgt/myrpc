@@ -1,5 +1,5 @@
 //
-// msgpack::rpc::impl - Cluster Communication Framework
+// msgpack::myrpc::impl - Cluster Communication Framework
 //
 // Copyright (C) 2009-2010 FURUHASHI Sadayuki
 //
@@ -15,14 +15,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-#ifndef MSGPACK_RPC_IMPL_H__
-#define MSGPACK_RPC_IMPL_H__
+#ifndef MSGPACK_MYRPC_IMPL_H__
+#define MSGPACK_MYRPC_IMPL_H__
 
 #include <boost/weak_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace msgpack {
-namespace rpc {
+namespace myrpc {
 
 
 class future;
@@ -49,8 +49,7 @@ class request_impl;
 typedef boost::shared_ptr<request_impl> shared_request;
 
 
-}  // namespace rpc
+}  // namespace myrpc
 }  // namespace msgpack
 
-#endif /* msgpack/rpc/impl.h */
-
+#endif

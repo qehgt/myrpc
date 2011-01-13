@@ -1,5 +1,5 @@
 //
-// msgpack::rpc::request - MessagePack-RPC for C++
+// msgpack::myrpc::request - MessagePack-myRPC for C++
 //
 // Copyright (C) 2009-2010 FURUHASHI Sadayuki
 //
@@ -18,7 +18,7 @@
 #include "request_impl.h"
 
 namespace msgpack {
-namespace rpc {
+namespace myrpc {
 
 
 object request::method()
@@ -57,6 +57,6 @@ auto_zone& request::zone()
 }
 
 
-}  // namespace rpc
+}  // namespace myrpc
 }  // namespace msgpack
 

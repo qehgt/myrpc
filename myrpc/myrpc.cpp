@@ -7,21 +7,21 @@ class dispatcher_type {
 public:
     virtual ~dispatcher_type() {}
 
-    virtual void dispatch(msgpack::rpc::request req) = 0;
+    virtual void dispatch(msgpack::myrpc::request req) = 0;
 };
 typedef boost::shared_ptr<dispatcher_type> shared_dispatcher;
 
 class dummy_dispatcher_type : public dispatcher_type {
 public:
-    void dispatch(msgpack::rpc::request req)
+    void dispatch(msgpack::myrpc::request req)
     {
-        req.error(msgpack::rpc::NO_METHOD_ERROR);
+        req.error(msgpack::myrpc::NO_METHOD_ERROR);
     }
 };
 
 
 
-class boost_message_sendable : public msgpack::rpc::message_sendable {
+class boost_message_sendable : public msgpack::myrpc::message_sendable {
 public:
     boost_message_sendable(boost::asio::ip::tcp::socket& socket) 
         : s(socket) 
@@ -38,7 +38,7 @@ public:
         // TODO: what should we do with socket in case of error?
     }
 
-    void send_data(msgpack::rpc::auto_vreflife vbuf)
+    void send_data(msgpack::myrpc::auto_vreflife vbuf)
     {
         boost::system::error_code ec;
         const struct iovec* vec = vbuf->vector();
@@ -57,7 +57,7 @@ protected:
 
 class myecho : public dispatcher_type {
 public:
-    typedef msgpack::rpc::request request;
+    typedef msgpack::myrpc::request request;
 
 	void dispatch(request req);
 
@@ -108,11 +108,11 @@ try {
         err(req);
 
     } else {
-        req.error(msgpack::rpc::NO_METHOD_ERROR);
+        req.error(msgpack::myrpc::NO_METHOD_ERROR);
     }
 
 } catch (msgpack::type_error&) {
-    req.error(msgpack::rpc::ARGUMENT_ERROR);
+    req.error(msgpack::myrpc::ARGUMENT_ERROR);
     return;
 
 } catch (std::exception& e) {
@@ -126,7 +126,7 @@ struct msgpack_object_holder {
     boost::shared_ptr<msgpack::zone> z;
 
     msgpack_object_holder() {}
-    msgpack_object_holder(msgpack::object o, msgpack::rpc::auto_zone az)
+    msgpack_object_holder(msgpack::object o, msgpack::myrpc::auto_zone az)
         : obj(o), z(az.release())
     {
     }
@@ -202,12 +202,12 @@ public:
 protected:
 
     callable create_call(session_id_type id);
-    void process_response(msgpack::rpc::msgid_t msgid, msgpack::object obj, msgpack::rpc::auto_zone z);
+    void process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z);
 
     void handle_read(const boost::system::error_code& error,
         size_t bytes_transferred);
 
-    void process_message(msgpack::object obj, msgpack::rpc::auto_zone z);
+    void process_message(msgpack::object obj, msgpack::myrpc::auto_zone z);
 
     volatile boost::uint32_t current_id;
     typedef boost::shared_ptr<boost::promise<msgpack_object_holder> > promise_type;
@@ -228,23 +228,23 @@ template <typename M, typename P>
 struct message_rpc {
 	message_rpc() { }
 
-	msgpack::rpc::message_type_t type;
-    msgpack::rpc::msgid_t msgid;
+	msgpack::myrpc::message_type_t type;
+    msgpack::myrpc::msgid_t msgid;
     M method;
 	P param;
 
-    bool is_request()  const { return type == msgpack::rpc::REQUEST;  }
-	bool is_response() const { return type == msgpack::rpc::RESPONSE; }
-	bool is_notify()   const { return type == msgpack::rpc::NOTIFY;   }
+    bool is_request()  const { return type == msgpack::myrpc::REQUEST;  }
+	bool is_response() const { return type == msgpack::myrpc::RESPONSE; }
+	bool is_notify()   const { return type == msgpack::myrpc::NOTIFY;   }
 
 	MSGPACK_DEFINE(type, msgid, method, param);
 };
 
 
-void session::process_message(msgpack::object obj, msgpack::rpc::auto_zone z)
+void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
 {
     using namespace msgpack;
-    using namespace msgpack::rpc;
+    using namespace msgpack::myrpc;
 
     message_rpc<object, object> rpc;
 
@@ -292,7 +292,7 @@ void session::process_message(msgpack::object obj, msgpack::rpc::auto_zone z)
 void session::handle_read(const boost::system::error_code& error, size_t bytes_transferred)
 {
     using namespace msgpack;
-    using namespace msgpack::rpc;
+    using namespace msgpack::myrpc;
     if (!error)
     {
         // process input data...
@@ -333,7 +333,7 @@ void session::remove_unused_callable(session_id_type id, bool reset_data)
     promise_map.erase(id);
 }
 
-void session::process_response(msgpack::rpc::msgid_t msgid, msgpack::object obj, msgpack::rpc::auto_zone z)
+void session::process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z)
 {
     mutex_type::scoped_lock lock(mutex);
 
@@ -360,7 +360,7 @@ inline callable session::call(const std::string& name)
     msgpack::sbuffer sbuf;
     typedef msgpack::type::tuple<> Params;
     message_rpc<std::string, Params> msg;
-    msg.type = msgpack::rpc::REQUEST;
+    msg.type = msgpack::myrpc::REQUEST;
     msg.msgid = id;
     msg.method = name;
     msg.param = Params();
@@ -380,7 +380,7 @@ inline callable session::call(const std::string& name, const A1& a1)
     msgpack::sbuffer sbuf;
     typedef msgpack::type::tuple<A1> Params;
     message_rpc<std::string, Params> msg;
-    msg.type = msgpack::rpc::REQUEST;
+    msg.type = msgpack::myrpc::REQUEST;
     msg.msgid = id;
     msg.method = name;
     msg.param = Params(a1);
@@ -400,7 +400,7 @@ inline callable session::call(const std::string& name, const A1& a1, const A2& a
     msgpack::sbuffer sbuf;
     typedef msgpack::type::tuple<A1, A2> Params;
     message_rpc<std::string, Params> msg;
-    msg.type = msgpack::rpc::REQUEST;
+    msg.type = msgpack::myrpc::REQUEST;
     msg.msgid = id;
     msg.method = name;
     msg.param = Params(a1, a2);

@@ -1,5 +1,5 @@
 //
-// msgpack::rpc::message_sendable - MessagePack-RPC for C++
+// msgpack::myrpc::message_sendable - MessagePack-RPC for C++
 //
 // Copyright (C) 2009-2010 FURUHASHI Sadayuki
 //
@@ -15,13 +15,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-#ifndef MSGPACK_RPC_MESSAGE_SENDABLE_H__
-#define MSGPACK_RPC_MESSAGE_SENDABLE_H__
+#ifndef MSGPACK_MYRPC_MESSAGE_SENDABLE_H__
+#define MSGPACK_MYRPC_MESSAGE_SENDABLE_H__
 
 #include "types.h"
 
 namespace msgpack {
-namespace rpc {
+namespace myrpc {
 
 
 typedef with_shared_zone<vrefbuffer> vreflife;
@@ -40,8 +40,8 @@ public:
 typedef boost::shared_ptr<message_sendable> shared_message_sendable;
 
 
-}  // namespace rpc
+}  // namespace myrpc
 }  // namespace msgpack
 
-#endif /* msgpack/rpc/message_sendable.h */
+#endif
 

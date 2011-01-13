@@ -1,5 +1,5 @@
 //
-// msgpack::rpc::request_impl - MessagePack-RPC for C++
+// msgpack::myrpc::request_impl - MessagePack-RPC for C++
 //
 // Copyright (C) 2009-2010 FURUHASHI Sadayuki
 //
@@ -15,14 +15,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-#ifndef MSGPACK_RPC_REQUEST_IMPL_H__
-#define MSGPACK_RPC_REQUEST_IMPL_H__
+#ifndef MSGPACK_MYRPC_REQUEST_IMPL_H__
+#define MSGPACK_MYRPC_REQUEST_IMPL_H__
 
 #include "message_sendable.h"
 #include "request.h"
 
 namespace msgpack {
-namespace rpc {
+namespace myrpc {
 
 
 class request_impl {
@@ -75,8 +75,8 @@ private:
 };
 
 
-}  // namespace rpc
+}  // namespace myrpc
 }  // namespace msgpack
 
-#endif /* msgpack/rpc/request_impl.h */
+#endif
 

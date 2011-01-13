@@ -1,5 +1,5 @@
 //
-// msgpack::rpc::request - MessagePack-RPC for C++
+// msgpack::myrpc::request - MessagePack-RPC for C++
 //
 // Copyright (C) 2009-2010 FURUHASHI Sadayuki
 //
@@ -15,15 +15,15 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-#ifndef MSGPACK_RPC_REQUEST_H__
-#define MSGPACK_RPC_REQUEST_H__
+#ifndef MSGPACK_MYRPC_REQUEST_H__
+#define MSGPACK_MYRPC_REQUEST_H__
 
 #include "protocol.h"
 #include "impl_fwd.h"
 #include "types.h"
 
 namespace msgpack {
-namespace rpc {
+namespace myrpc {
 
 
 class request {
@@ -208,8 +208,8 @@ void request::error(Error err, Result res, shared_zone z)
 }
 
 
-}  // namespace rpc
+}  // namespace myrpc
 }  // namespace msgpack
 
-#endif /* msgpack/rpc/request.h */
+#endif
 

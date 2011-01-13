@@ -1,5 +1,5 @@
 //
-// msgpack::rpc::types - Cluster Communication Framework
+// msgpack::myrpc::types - Cluster Communication Framework
 //
 // Copyright (C) 2009-2010 FURUHASHI Sadayuki
 //
@@ -15,15 +15,15 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-#ifndef MSGPACK_RPC_TYPES_H__
-#define MSGPACK_RPC_TYPES_H__
+#ifndef MSGPACK_MYRPC_TYPES_H__
+#define MSGPACK_MYRPC_TYPES_H__
 
 #include <msgpack.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace msgpack {
-namespace rpc {
+namespace myrpc {
 
 
 typedef std::auto_ptr<zone> auto_zone;
@@ -44,8 +44,8 @@ private:
 };
 
 
-}  // namespace rpc
+}  // namespace myrpc
 }  // namespace msgpack
 
-#endif /* msgpack/rpc/types.h */
+#endif
 
