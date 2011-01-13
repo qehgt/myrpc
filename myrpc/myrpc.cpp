@@ -295,7 +295,6 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
     using namespace msgpack::rpc;
     if (!error)
     {
-        printf("bytes_transferred = %d\n", int(bytes_transferred));
         // process input data...
         unpacker.buffer_consumed(bytes_transferred);
         msgpack::unpacked result;
@@ -436,8 +435,11 @@ void run_client_test()
 
         callable cc = s->call("add", -12, 13);
         int i = cc.get<int>();
+        printf("i = %d\n", i);
         i = s->call("add", 12, 13).get<int>();
+        printf("i = %d\n", i);
         std::string str = s->call("echo", std::string("aaaBBB")).get<std::string>();
+        printf("str = %s\n", str.c_str());
 
         // close session
         s.reset();
