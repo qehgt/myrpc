@@ -1,0 +1,5 @@
+myrpc/.emacs.desktop
+myrpc/.sconsign.dblite
+myrpc/*~
+myrpc/*.o
+
