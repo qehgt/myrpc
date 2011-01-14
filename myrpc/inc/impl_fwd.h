@@ -24,7 +24,7 @@
 namespace msgpack {
 namespace myrpc {
 
-/*
+
 class future;
 class future_impl;
 typedef boost::shared_ptr<future_impl> shared_future;
@@ -43,7 +43,7 @@ class server;
 class server_impl;
 typedef boost::shared_ptr<server_impl> shared_server;
 typedef boost::weak_ptr<server_impl> weak_server;
-  */
+
 class request;
 class request_impl;
 typedef boost::shared_ptr<request_impl> shared_request;
