@@ -177,6 +177,26 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\callable.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\myrpc.cpp"
 				>
 				<FileConfiguration
@@ -190,6 +210,18 @@
 			</File>
 			<File
 				RelativePath=".\request.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\session.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -227,9 +259,49 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\myecho_server.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
+			<Filter
+				Name="lib_headers"
+				>
+				<File
+					RelativePath=".\inc\callable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\dispatcher_type.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\impl_fwd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\message_sendable.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\protocol.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\request.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\request_impl.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\types.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

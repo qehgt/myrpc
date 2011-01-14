@@ -26,3 +26,4 @@
 #include "inc/protocol.h"
 #include "inc/request.h"
 #include "inc/request_impl.h"
+#include "inc/session.h"
