@@ -103,7 +103,9 @@ inline callable session::call(const std::string& name)
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
-    get_socket().send(boost::asio::buffer(sbuf.data(), sbuf.size()));
+    boost::system::error_code ec;
+    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
+        boost::asio::transfer_all(), ec);
 
     return ret;
 }
@@ -123,7 +125,9 @@ inline callable session::call(const std::string& name, const A1& a1)
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
-    get_socket().send(boost::asio::buffer(sbuf.data(), sbuf.size()));
+    boost::system::error_code ec;
+    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
+        boost::asio::transfer_all(), ec);
 
     return ret;
 }
@@ -143,7 +147,9 @@ inline callable session::call(const std::string& name, const A1& a1, const A2& a
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
-    get_socket().send(boost::asio::buffer(sbuf.data(), sbuf.size()));
+    boost::system::error_code ec;
+    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
+        boost::asio::transfer_all(), ec);
 
     return ret;
 }
