@@ -32,6 +32,10 @@ void run_client_test()
         printf("i = %d\n", i);
         std::string str = s->call("echo", std::string("aaaBBB")).get<std::string>();
         printf("str = %s\n", str.c_str());
+        /*
+        s->notify("echo", std::string("test string"));
+        boost::this_thread::sleep(boost::posix_time::seconds(1)); 
+        */
 
         // close session
         s->get_socket().close();

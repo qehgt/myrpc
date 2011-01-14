@@ -78,7 +78,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
             shared_request sr(new request_impl(
                 shared_message_sendable(new boost_message_sendable(get_socket())),
                 0, rpc.method, rpc.param, z));
-            // dispatcher->dispatch(request(sr));
+            dispatcher->dispatch(request(sr));
         }
         break;
 

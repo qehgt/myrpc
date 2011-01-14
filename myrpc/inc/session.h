@@ -46,6 +46,14 @@ public:
     template <typename A1, typename A2>
     inline callable call(const std::string& name, const A1& a1, const A2& a2);
 
+    inline void notify(const std::string& name);
+
+    template <typename A1>
+    inline void notify(const std::string& name, const A1& a1);
+
+    template <typename A1, typename A2>
+    inline void notify(const std::string& name, const A1& a1, const A2& a2);
+
     void remove_unused_callable(session_id_type id, bool reset_data);
 
 protected:
@@ -80,7 +88,7 @@ struct message_rpc {
         msgpack::myrpc::msgid_t id,
         M m,
         P p)
-        : type(type), msgid(id), method(m), param(p)
+        : type(t), msgid(id), method(m), param(p)
     {}
 
 	msgpack::myrpc::message_type_t type;
@@ -147,6 +155,53 @@ inline callable session::call(const std::string& name, const A1& a1, const A2& a
         boost::asio::transfer_all(), ec);
 
     return ret;
+}
+
+inline void session::notify(const std::string& name)
+{
+    using namespace msgpack;
+    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+
+    msgpack::sbuffer sbuf;
+    typedef type::tuple<> Params;
+    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params());
+
+    msgpack::pack(sbuf, msg);
+    boost::system::error_code ec;
+    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
+        boost::asio::transfer_all(), ec);
+}
+
+template <typename A1>
+inline void session::notify(const std::string& name, const A1& a1)
+{
+    using namespace msgpack;
+    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+
+    msgpack::sbuffer sbuf;
+    typedef type::tuple<A1> Params;
+    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1));
+
+    msgpack::pack(sbuf, msg);
+    boost::system::error_code ec;
+    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
+        boost::asio::transfer_all(), ec);
+}
+
+template <typename A1, typename A2>
+inline void session::notify(const std::string& name, const A1& a1, const A2& a2)
+{
+    using namespace msgpack;
+    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+
+    msgpack::sbuffer sbuf;
+    typedef type::tuple<A1, A2> Params;
+    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2));
+
+    msgpack::pack(sbuf, msg);
+    boost::system::error_code ec;
+    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
+        boost::asio::transfer_all(), ec);
 }
 
 } // namespace rpc {
