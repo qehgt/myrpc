@@ -426,7 +426,7 @@ void run_client_test()
         printf("str = %s\n", str.c_str());
 
         // close session
-        s.reset();
+        s->get_socket().close();
 
         t.join();
     }
