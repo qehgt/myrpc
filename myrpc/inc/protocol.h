@@ -18,7 +18,7 @@
 #ifndef MSGPACK_MYRPC_PROTOCOL_H__
 #define MSGPACK_MYRPC_PROTOCOL_H__
 
-#include <msgpack.hpp>
+#include "msgpack_header.h"
 
 namespace msgpack {
 namespace myrpc {

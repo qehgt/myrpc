@@ -298,6 +298,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\inc\session.h"
+					>
+				</File>
+				<File
 					RelativePath=".\inc\types.h"
 					>
 				</File>

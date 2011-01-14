@@ -22,7 +22,7 @@
 #include <boost/thread.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
 
-#include <msgpack.hpp>
+#include "msgpack_header.h"
 #include "inc/protocol.h"
 #include "inc/request.h"
 #include "inc/request_impl.h"

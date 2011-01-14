@@ -76,6 +76,12 @@ protected:
 template <typename M, typename P>
 struct message_rpc {
 	message_rpc() { }
+	message_rpc(msgpack::myrpc::message_type_t t,
+        msgpack::myrpc::msgid_t id,
+        M m,
+        P p)
+        : type(type), msgid(id), method(m), param(p)
+    {}
 
 	msgpack::myrpc::message_type_t type;
     msgpack::myrpc::msgid_t msgid;
@@ -91,15 +97,12 @@ struct message_rpc {
 
 inline callable session::call(const std::string& name)
 {
+    using namespace msgpack;
     session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
-    typedef msgpack::type::tuple<> Params;
-    message_rpc<std::string, Params> msg;
-    msg.type = msgpack::myrpc::REQUEST;
-    msg.msgid = id;
-    msg.method = name;
-    msg.param = Params();
+    typedef type::tuple<> Params;
+    message_rpc<std::string, Params> msg(myrpc::REQUEST, id, name, Params());
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
@@ -117,11 +120,7 @@ inline callable session::call(const std::string& name, const A1& a1)
 
     msgpack::sbuffer sbuf;
     typedef msgpack::type::tuple<A1> Params;
-    message_rpc<std::string, Params> msg;
-    msg.type = msgpack::myrpc::REQUEST;
-    msg.msgid = id;
-    msg.method = name;
-    msg.param = Params(a1);
+    message_rpc<std::string, Params> msg(myrpc::REQUEST, id, name, Params(a1));
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
@@ -139,11 +138,7 @@ inline callable session::call(const std::string& name, const A1& a1, const A2& a
 
     msgpack::sbuffer sbuf;
     typedef msgpack::type::tuple<A1, A2> Params;
-    message_rpc<std::string, Params> msg;
-    msg.type = msgpack::myrpc::REQUEST;
-    msg.msgid = id;
-    msg.method = name;
-    msg.param = Params(a1, a2);
+    message_rpc<std::string, Params> msg(myrpc::REQUEST, id, name, Params(a1, a2));
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);

@@ -8,7 +8,7 @@
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/future.hpp>
-#include <msgpack.hpp>
+#include "msgpack_header.h"
 #include "types.h"
 
 namespace msgpack {

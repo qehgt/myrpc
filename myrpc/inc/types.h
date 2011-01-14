@@ -18,7 +18,7 @@
 #ifndef MSGPACK_MYRPC_TYPES_H__
 #define MSGPACK_MYRPC_TYPES_H__
 
-#include <msgpack.hpp>
+#include "msgpack_header.h"
 #include <boost/weak_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
