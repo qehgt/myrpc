@@ -10,33 +10,20 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
 #include "dispatcher_type.h"
+#include "io_stream_object.h"
 #include "callable.h"
+#include "io_stream_object.h"
 
 namespace msgpack {
 namespace myrpc {
 
-class session : public boost::enable_shared_from_this<session> {
+class session : public boost::enable_shared_from_this<session>, protected read_handler_type {
 public:
-    session(boost::asio::io_service& io_service, msgpack::myrpc::shared_dispatcher dispatcher)
-        : current_id(0),
-        socket(io_service),
-        dispatcher(dispatcher)
-    {
-        unpacker.reserve_buffer(max_length);
-    }
+    session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher);
 
-    boost::asio::ip::tcp::socket& get_socket()
-    {
-        return socket;
-    }
+    boost::shared_ptr<io_stream_object> get_stream_object();
 
-    void start()
-    {
-        socket.async_read_some(boost::asio::buffer(unpacker.buffer(), max_length),
-            boost::bind(&session::handle_read, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-    }
+    void start();
 
     inline callable call(const std::string& name);
 
@@ -61,8 +48,7 @@ protected:
     callable create_call(session_id_type id);
     void process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z);
 
-    void handle_read(const boost::system::error_code& error,
-        size_t bytes_transferred);
+    void handle_read(const boost::system::error_code& error, size_t bytes_transferred);
 
     void process_message(msgpack::object obj, msgpack::myrpc::auto_zone z);
 
@@ -75,7 +61,7 @@ protected:
     promise_map_type promise_map;
 
     enum { max_length = 32 * 1024 };
-    boost::asio::ip::tcp::socket socket;
+    boost::shared_ptr<io_stream_object> stream;
 
     msgpack::unpacker unpacker;
     msgpack::myrpc::shared_dispatcher dispatcher;
@@ -115,8 +101,7 @@ inline callable session::call(const std::string& name)
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
     boost::system::error_code ec;
-    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
-        boost::asio::transfer_all(), ec);
+    stream->write(sbuf.data(), sbuf.size(), ec);
 
     return ret;
 }
@@ -133,8 +118,7 @@ inline callable session::call(const std::string& name, const A1& a1)
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
     boost::system::error_code ec;
-    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
-        boost::asio::transfer_all(), ec);
+    stream->write(sbuf.data(), sbuf.size(), ec);
 
     return ret;
 }
@@ -151,8 +135,7 @@ inline callable session::call(const std::string& name, const A1& a1, const A2& a
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
     boost::system::error_code ec;
-    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
-        boost::asio::transfer_all(), ec);
+    stream->write(sbuf.data(), sbuf.size(), ec);
 
     return ret;
 }
@@ -168,8 +151,7 @@ inline void session::notify(const std::string& name)
 
     msgpack::pack(sbuf, msg);
     boost::system::error_code ec;
-    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
-        boost::asio::transfer_all(), ec);
+    stream->write(sbuf.data(), sbuf.size(), ec);
 }
 
 template <typename A1>
@@ -184,8 +166,7 @@ inline void session::notify(const std::string& name, const A1& a1)
 
     msgpack::pack(sbuf, msg);
     boost::system::error_code ec;
-    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
-        boost::asio::transfer_all(), ec);
+    stream->write(sbuf.data(), sbuf.size(), ec);
 }
 
 template <typename A1, typename A2>
@@ -200,8 +181,7 @@ inline void session::notify(const std::string& name, const A1& a1, const A2& a2)
 
     msgpack::pack(sbuf, msg);
     boost::system::error_code ec;
-    boost::asio::write(get_socket(), boost::asio::buffer(sbuf.data(), sbuf.size()),
-        boost::asio::transfer_all(), ec);
+    stream->write(sbuf.data(), sbuf.size(), ec);
 }
 
 } // namespace rpc {

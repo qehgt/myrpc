@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;inc"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MP_MEMORY_BOOST_ORG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MP_MEMORY_BOOST_ORG;_WIN32_WINNT=0x0600"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
@@ -118,7 +118,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;inc"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0600"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -252,6 +252,18 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\stream_tcp_socket.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -279,6 +291,10 @@
 				</File>
 				<File
 					RelativePath=".\inc\impl_fwd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\io_stream_object.h"
 					>
 				</File>
 				<File

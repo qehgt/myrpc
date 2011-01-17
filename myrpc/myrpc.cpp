@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "myecho_server.h"
+#include "stream_tcp_socket.h"
 
 void run_client_test()
 {
@@ -17,11 +18,15 @@ void run_client_test()
         tcp::resolver resolver(io_client);
         tcp::resolver::query query(tcp::v4(), "127.0.0.1", PORT);
         tcp::resolver::iterator iterator = resolver.resolve(query);
+        boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(io_client));
+        socket->connect(*iterator);
 
         msgpack::myrpc::shared_dispatcher dispatcher(new msgpack::myrpc::dummy_dispatcher_type());
-        boost::shared_ptr<myrpc::session> s(new myrpc::session(io_client, dispatcher));
+        boost::shared_ptr<myrpc::session> s(new myrpc::session(
+            boost::static_pointer_cast<io_stream_object>(socket),
+            dispatcher
+            ));
 
-        s->get_socket().connect(*iterator);
         s->start();
         boost::thread t(boost::bind(&io_service::run, &io_client));
 
@@ -37,8 +42,8 @@ void run_client_test()
         boost::this_thread::sleep(boost::posix_time::seconds(1)); 
         */
 
-        // close session
-        s->get_socket().close();
+        // close socket & session
+        socket->close();
 
         t.join();
     }
@@ -51,18 +56,23 @@ void run_client_test()
 
 int main()
 {
+    using namespace msgpack;
+    using namespace msgpack::myrpc;
     try {
         using namespace boost::asio;
         const int PORT = 18811;
         io_service io;
 
         msgpack::myrpc::shared_dispatcher dispatcher(new myecho());
-        boost::shared_ptr<msgpack::myrpc::session> s(new msgpack::myrpc::session(io, dispatcher));
+        boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(io));
+        boost::shared_ptr<msgpack::myrpc::session> s(new msgpack::myrpc::session(
+            boost::static_pointer_cast<io_stream_object>(socket),
+            dispatcher));
 
         boost::thread t_client(run_client_test);
 
         ip::tcp::acceptor acceptor(io, ip::tcp::endpoint(ip::tcp::v4(), PORT));
-        acceptor.accept(s->get_socket());
+        acceptor.accept(*socket);
 
         s->start();
         boost::thread t(boost::bind(&io_service::run, &io));
