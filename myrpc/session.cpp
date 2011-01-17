@@ -7,15 +7,14 @@ namespace myrpc {
 
 class boost_message_sendable : public msgpack::myrpc::message_sendable {
 public:
-    boost_message_sendable(boost::asio::ip::tcp::socket& socket) 
-        : s(socket) 
+    boost_message_sendable(io_stream_object& stream) 
+        : s(stream)
       {}
 
     void send_data(msgpack::sbuffer* sbuf)
     {
         boost::system::error_code ec;
-        boost::asio::write(s, boost::asio::buffer(sbuf->data(), sbuf->size()),
-            boost::asio::transfer_all(), ec);
+        s.write(sbuf->data(), sbuf->size(), ec);
         ::free(sbuf->data());
         sbuf->release();
 
@@ -28,16 +27,22 @@ public:
         const struct iovec* vec = vbuf->vector();
         size_t veclen = vbuf->vector_size();
 
-        for(size_t i = 0; i < veclen; ++i) {
-            boost::asio::write(s, boost::asio::buffer(vec[i].iov_base, vec[i].iov_len),
-                boost::asio::transfer_all(), ec);
-        }
+        for(size_t i = 0; i < veclen; ++i)
+            s.write(vec[i].iov_base, vec[i].iov_len, ec);
         // TODO: what should we do with socket in case of error?
     }
 
 protected:
-    boost::asio::ip::tcp::socket& s;
+    io_stream_object& s;
 };
+
+session::session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher)
+    : current_id(0),
+    stream(stream_object),
+    dispatcher(dispatcher)
+{
+    unpacker.reserve_buffer(max_length);
+}
 
 void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
 {
@@ -58,7 +63,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     case REQUEST: 
         {
             shared_request sr(new request_impl(
-                shared_message_sendable(new boost_message_sendable(get_socket())),
+                shared_message_sendable(new boost_message_sendable(*stream)),
                 rpc.msgid, rpc.method, rpc.param, z));
             dispatcher->dispatch(request(sr));
         }
@@ -67,7 +72,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     case RESPONSE: 
         {
             shared_request sr(new request_impl(
-                shared_message_sendable(new boost_message_sendable(get_socket())),
+                shared_message_sendable(new boost_message_sendable(*stream)),
                 rpc.msgid, rpc.method, rpc.param, z));
             process_response(rpc.msgid, rpc.param, z);
         }
@@ -76,7 +81,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     case NOTIFY: 
         {
             shared_request sr(new request_impl(
-                shared_message_sendable(new boost_message_sendable(get_socket())),
+                shared_message_sendable(new boost_message_sendable(*stream)),
                 0, rpc.method, rpc.param, z));
             dispatcher->dispatch(request(sr));
         }
@@ -103,10 +108,7 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
             process_message(obj, z);
         }
 
-        socket.async_read_some(boost::asio::buffer(unpacker.buffer(), max_length),
-            boost::bind(&session::handle_read, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+        stream->async_read_some(unpacker.buffer(), max_length, this);
     }
 }
 
@@ -140,6 +142,16 @@ callable session::create_call(session_id_type id)
     promise_map[id] = new_promise;
     future_data f(new_promise->get_future());
     return callable(boost::shared_ptr<callable_type>(new callable_type(id, f, shared_from_this())));
+}
+
+void session::start()
+{
+    stream->async_read_some(unpacker.buffer(), max_length, this);
+}
+
+boost::shared_ptr<io_stream_object> session::get_stream_object()
+{
+    return stream;
 }
 
 } // namespace rpc {

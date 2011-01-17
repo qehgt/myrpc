@@ -8,10 +8,12 @@ namespace msgpack {
 namespace myrpc {
 
 class read_handler_type {
+public:
     virtual void handle_read(const boost::system::error_code& error, size_t bytes_transferred) = 0;
-}
+};
 
 class io_stream_object {
+public:
     virtual ~io_stream_object() {}
 
     virtual size_t write(const void* data, size_t size, boost::system::error_code& ec);
