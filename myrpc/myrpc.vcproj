@@ -253,7 +253,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\stream_socket.cpp"
+				RelativePath=".\stream_tcp_socket.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
