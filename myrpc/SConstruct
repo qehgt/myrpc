@@ -1,6 +1,6 @@
-Program("rpc_test", ["myrpc.cpp", "request.cc", "callable.cpp", "session.cpp", "stream_tcp_socket.cpp"], 
+Program("rpc_test", ["myrpc.cpp", "src/request.cc", "src/callable.cpp", "src/session.cpp", "src/stream_tcp_socket.cpp"], 
         CPPPATH = ["../../OUT/include",
-                   "inc",
+                   "./",
                   "/home/vasily/Projects/efr_new/Boost/include"],
         LIBPATH = ["/home/vasily/Projects/efr_new/Boost/bin/i386_linux",
                    "../../OUT/lib"],
