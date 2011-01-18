@@ -1,5 +1,6 @@
-myrpc/VTune
+VTune*
 Debug
 myrpc.ncb
 myrpc.suo
 myrpc/myrpc.vcproj.*.*.*
+myrpc/target/win/myrpc.vcproj.*

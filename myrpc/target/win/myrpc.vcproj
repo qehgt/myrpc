@@ -177,7 +177,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\callable.cpp"
+				RelativePath="..\..\src\callable.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -197,7 +197,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\myrpc.cpp"
+				RelativePath="..\..\myrpc.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -209,7 +209,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\request.cc"
+				RelativePath="..\..\src\request.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -221,7 +221,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\session.cpp"
+				RelativePath="..\..\src\session.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -233,7 +233,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\stream_tcp_socket.cpp"
+				RelativePath="..\..\src\stream_tcp_socket.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -251,62 +251,62 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\myecho_server.h"
+				RelativePath="..\..\myecho_server.h"
 				>
 			</File>
 			<Filter
 				Name="lib_headers"
 				>
 				<File
-					RelativePath=".\inc\callable.h"
+					RelativePath="..\..\inc\callable.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\callable_imp.h"
+					RelativePath="..\..\inc\callable_imp.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\dispatcher_type.h"
+					RelativePath="..\..\inc\dispatcher_type.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\impl_fwd.h"
+					RelativePath="..\..\inc\impl_fwd.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\io_stream_object.h"
+					RelativePath="..\..\inc\io_stream_object.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\message_sendable.h"
+					RelativePath="..\..\inc\message_sendable.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\protocol.h"
+					RelativePath="..\..\inc\protocol.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\request.h"
+					RelativePath="..\..\inc\request.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\request_impl.h"
+					RelativePath="..\..\inc\request_impl.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\session.h"
+					RelativePath="..\..\inc\session.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\session_id.h"
+					RelativePath="..\..\inc\session_id.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\stream_tcp_socket.h"
+					RelativePath="..\..\inc\stream_tcp_socket.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inc\types.h"
+					RelativePath="..\..\inc\types.h"
 					>
 				</File>
 			</Filter>
