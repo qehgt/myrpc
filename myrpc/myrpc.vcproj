@@ -286,6 +286,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\inc\callable_imp.h"
+					>
+				</File>
+				<File
 					RelativePath=".\inc\dispatcher_type.h"
 					>
 				</File>
@@ -315,6 +319,14 @@
 				</File>
 				<File
 					RelativePath=".\inc\session.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\session_id.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inc\stream_tcp_socket.h"
 					>
 				</File>
 				<File

@@ -1,6 +1,10 @@
 #include "session.h"
 #include "message_sendable.h"
 #include "request_impl.h"
+#include "callable_imp.h"
+
+#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/mutex.hpp>
 
 namespace msgpack {
 namespace myrpc {
@@ -36,12 +40,30 @@ protected:
     io_stream_object& s;
 };
 
+struct session::session_impl {
+    session_impl::session_impl()
+    {
+        unpacker.reserve_buffer(max_length);
+    }
+
+    typedef boost::shared_ptr<boost::promise<msgpack_object_holder> > promise_type;
+    typedef std::map<session_id_type, promise_type> promise_map_type;
+
+    typedef boost::recursive_mutex mutex_type;
+    mutex_type mutex;
+    promise_map_type promise_map;
+
+    enum { max_length = 32 * 1024 };
+
+    msgpack::unpacker unpacker;
+};
+
 session::session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher)
-    : current_id(0),
+    : current_id(0), 
     stream(stream_object),
-    dispatcher(dispatcher)
+    dispatcher(dispatcher),
+    pimpl(new session_impl())
 {
-    unpacker.reserve_buffer(max_length);
 }
 
 void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
@@ -99,54 +121,54 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
     if (!error)
     {
         // process input data...
-        unpacker.buffer_consumed(bytes_transferred);
+        pimpl->unpacker.buffer_consumed(bytes_transferred);
         msgpack::unpacked result;
-        while (unpacker.next(&result)) {
+        while (pimpl->unpacker.next(&result)) {
             msgpack::object obj = result.get();
 
             std::auto_ptr<msgpack::zone> z = result.zone();
             process_message(obj, z);
         }
 
-        stream->async_read_some(unpacker.buffer(), max_length, this);
+        stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
     }
 }
 
 void session::remove_unused_callable(session_id_type id, bool reset_data)
 {
-    mutex_type::scoped_lock lock(mutex);
+    session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
 
     // There is no clients for this 'promise',
     // so, we can setup it to default value before deleting.
     // The only reason to do it is calm debuggers that detect throwning exception in boost library
     if (reset_data)
-        promise_map[id]->set_value(msgpack_object_holder());
-    promise_map.erase(id);
+        pimpl->promise_map[id]->set_value(msgpack_object_holder());
+    pimpl->promise_map.erase(id);
 }
 
 void session::process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z)
 {
-    mutex_type::scoped_lock lock(mutex);
+    session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
 
-    promise_map_type::iterator i = promise_map.find(msgid);
-    if (i != promise_map.end())
+    session_impl::promise_map_type::iterator i = pimpl->promise_map.find(msgid);
+    if (i != pimpl->promise_map.end())
         i->second->set_value(msgpack_object_holder(obj, z));
 }
 
 callable session::create_call(session_id_type id)
 {
-    mutex_type::scoped_lock lock(mutex);
+    session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
 
     // create new future
-    promise_type new_promise(new boost::promise<msgpack_object_holder>);
-    promise_map[id] = new_promise;
+    session_impl::promise_type new_promise(new boost::promise<msgpack_object_holder>);
+    pimpl->promise_map[id] = new_promise;
     future_data f(new_promise->get_future());
     return callable(boost::shared_ptr<callable_type>(new callable_type(id, f, shared_from_this())));
 }
 
 void session::start()
 {
-    stream->async_read_some(unpacker.buffer(), max_length, this);
+    stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
 }
 
 boost::shared_ptr<io_stream_object> session::get_stream_object()

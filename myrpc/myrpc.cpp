@@ -85,3 +85,20 @@ int main()
     }
     return 0;
 }
+
+
+template <class T>
+class promiseAAA;
+
+void f()
+{
+    using namespace msgpack;
+    using namespace msgpack::myrpc;
+    class AAA;
+    
+    typedef boost::shared_ptr<promiseAAA<AAA> > promise_type;
+
+    typedef std::map<session_id_type, promise_type> ttt;
+
+    ttt AAA;
+}

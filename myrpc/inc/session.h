@@ -6,16 +6,18 @@
 #endif
 
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/asio.hpp>
-#include <boost/thread/recursive_mutex.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
 #include "dispatcher_type.h"
 #include "io_stream_object.h"
+#include "session_id.h"
 #include "callable.h"
 #include "io_stream_object.h"
+#include "session_id.h"
 
 namespace msgpack {
 namespace myrpc {
+
+struct msgpack_object_holder; // forward declaration
 
 class session : public boost::enable_shared_from_this<session>, protected read_handler_type {
 public:
@@ -52,18 +54,11 @@ protected:
 
     void process_message(msgpack::object obj, msgpack::myrpc::auto_zone z);
 
-    volatile boost::uint32_t current_id;
-    typedef boost::shared_ptr<boost::promise<msgpack_object_holder> > promise_type;
-    typedef std::map<session_id_type, promise_type> promise_map_type;
+    struct session_impl;
+    boost::shared_ptr<session_impl> pimpl;
 
-    typedef boost::recursive_mutex mutex_type;
-    mutex_type mutex;
-    promise_map_type promise_map;
-
-    enum { max_length = 32 * 1024 };
+    volatile session_id_type current_id;
     boost::shared_ptr<io_stream_object> stream;
-
-    msgpack::unpacker unpacker;
     msgpack::myrpc::shared_dispatcher dispatcher;
 };
 
