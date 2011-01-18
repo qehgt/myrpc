@@ -177,7 +177,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\callable.cpp"
+				RelativePath=".\src\callable.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -209,7 +209,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\request.cc"
+				RelativePath=".\src\request.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -221,7 +221,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\session.cpp"
+				RelativePath=".\src\session.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -253,7 +253,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\stream_tcp_socket.cpp"
+				RelativePath=".\src\stream_tcp_socket.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
