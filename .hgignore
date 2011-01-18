@@ -3,5 +3,6 @@ Debug
 Release
 myrpc.ncb
 myrpc.suo
+bin
 myrpc/myrpc.vcproj.*.*.*
 myrpc/target/win/myrpc.vcproj.*
