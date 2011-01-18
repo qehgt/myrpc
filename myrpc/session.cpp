@@ -41,7 +41,7 @@ protected:
 };
 
 struct session::session_impl {
-    session_impl::session_impl()
+    session_impl()
     {
         unpacker.reserve_buffer(max_length);
     }
