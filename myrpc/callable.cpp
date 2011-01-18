@@ -5,7 +5,7 @@
 namespace msgpack {
 namespace myrpc {
 
-callable_type::~callable_type()
+callable_imp::~callable_imp()
 {
     if (boost::shared_ptr<session> r = weak_session_ptr.lock())
     {

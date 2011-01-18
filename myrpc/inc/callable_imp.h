@@ -28,12 +28,12 @@ struct msgpack_object_holder {
 typedef boost::shared_future<msgpack_object_holder> future_data;
 class session; // forward declaration
 
-class callable_type : public boost::enable_shared_from_this<callable_type> {
+class callable_imp : public boost::enable_shared_from_this<callable_imp> {
 public:
-    callable_type(session_id_type id, const future_data& future_result, const boost::shared_ptr<session>& session) : 
+    callable_imp(session_id_type id, const future_data& future_result, const boost::shared_ptr<session>& session) : 
       id(id), f(future_result), weak_session_ptr(session)
       {}
-    ~callable_type();
+    ~callable_imp();
 
     future_data& get_future() { return f; }
 

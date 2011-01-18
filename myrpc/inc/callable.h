@@ -8,11 +8,11 @@
 namespace msgpack {
 namespace myrpc {
 
-class callable_type; // forward declaration
+class callable_imp; // forward declaration
 
 class callable {
 public:
-    callable(boost::shared_ptr<callable_type> s)
+    callable(boost::shared_ptr<callable_imp> s)
         : c(s)
     {}
 
@@ -22,7 +22,7 @@ public:
     }
 
 protected:
-    boost::shared_ptr<callable_type> c;
+    boost::shared_ptr<callable_imp> c;
 
     msgpack::object get_object();
 };

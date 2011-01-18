@@ -163,7 +163,7 @@ callable session::create_call(session_id_type id)
     session_impl::promise_type new_promise(new boost::promise<msgpack_object_holder>);
     pimpl->promise_map[id] = new_promise;
     future_data f(new_promise->get_future());
-    return callable(boost::shared_ptr<callable_type>(new callable_type(id, f, shared_from_this())));
+    return callable(boost::shared_ptr<callable_imp>(new callable_imp(id, f, shared_from_this())));
 }
 
 void session::start()
