@@ -1,4 +1,4 @@
-#include "stream_tcp_socket.h"
+#include "inc/stream_tcp_socket.h"
 #include <boost/asio/io_service.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>

@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;inc"
+				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;&quot;$(ProjectDir)&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MP_MEMORY_BOOST_ORG;_WIN32_WINNT=0x0600"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;inc"
+				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;&quot;$(ProjectDir)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0600"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -233,26 +233,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\stdafx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\src\stream_tcp_socket.cpp"
 				>
 				<FileConfiguration
@@ -272,10 +252,6 @@
 			>
 			<File
 				RelativePath=".\myecho_server.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.h"
 				>
 			</File>
 			<Filter
@@ -341,10 +317,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

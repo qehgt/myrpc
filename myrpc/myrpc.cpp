@@ -1,9 +1,10 @@
 // myrpc.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include "myecho_server.h"
-#include "stream_tcp_socket.h"
+#include "inc/stream_tcp_socket.h"
+#include "inc/session.h"
+#include <boost/thread.hpp>
 
 void run_client_test()
 {

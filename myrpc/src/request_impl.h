@@ -18,8 +18,8 @@
 #ifndef MSGPACK_MYRPC_REQUEST_IMPL_H__
 #define MSGPACK_MYRPC_REQUEST_IMPL_H__
 
-#include "message_sendable.h"
-#include "request.h"
+#include "inc/message_sendable.h"
+#include "inc/request.h"
 
 namespace msgpack {
 namespace myrpc {
