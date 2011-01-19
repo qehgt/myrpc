@@ -10,6 +10,7 @@
 #include <boost/thread/future.hpp>
 #include "msgpack_header.h"
 #include "types.h"
+#include "remove_callable_handler.h"
 
 namespace msgpack {
 namespace myrpc {
@@ -26,11 +27,10 @@ struct msgpack_object_holder {
 };
 
 typedef boost::shared_future<msgpack_object_holder> future_data;
-class session; // forward declaration
 
 class callable_imp : public boost::enable_shared_from_this<callable_imp> {
 public:
-    callable_imp(session_id_type id, const future_data& future_result, const boost::shared_ptr<session>& session) : 
+    callable_imp(session_id_type id, const future_data& future_result, const boost::shared_ptr<remove_callable_handler_type>& session) : 
       id(id), f(future_result), weak_session_ptr(session)
       {}
     ~callable_imp();
@@ -40,7 +40,7 @@ public:
 protected:
     session_id_type id;
     future_data f;
-    boost::weak_ptr<session> weak_session_ptr;
+    boost::weak_ptr<remove_callable_handler_type> weak_session_ptr;
 };
 
 } // namespace rpc {

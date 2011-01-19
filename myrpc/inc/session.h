@@ -9,17 +9,16 @@
 #include <boost/interprocess/detail/atomic.hpp>
 #include "dispatcher_type.h"
 #include "io_stream_object.h"
-#include "session_id.h"
 #include "callable.h"
 #include "io_stream_object.h"
-#include "session_id.h"
+#include "remove_callable_handler.h"
 
 namespace msgpack {
 namespace myrpc {
 
 struct msgpack_object_holder; // forward declaration
 
-class session : public boost::enable_shared_from_this<session>, protected read_handler_type {
+class session : public boost::enable_shared_from_this<session>, protected read_handler_type, public remove_callable_handler_type {
 public:
     session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher);
 
@@ -43,16 +42,15 @@ public:
     template <typename A1, typename A2>
     inline void notify(const std::string& name, const A1& a1, const A2& a2);
 
-    void remove_unused_callable(session_id_type id, bool reset_data);
-
 protected:
-
     callable create_call(session_id_type id);
     void process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z);
 
     void handle_read(const boost::system::error_code& error, size_t bytes_transferred);
 
     void process_message(msgpack::object obj, msgpack::myrpc::auto_zone z);
+
+    void remove_unused_callable(session_id_type id, bool reset_data);
 
     struct session_impl;
     boost::shared_ptr<session_impl> pimpl;
