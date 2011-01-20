@@ -7,3 +7,5 @@ bin
 
 syntax: glob
 *.user
+*.o
+.sconsign.dblite
