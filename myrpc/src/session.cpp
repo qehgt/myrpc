@@ -1,6 +1,7 @@
 #include "inc/session.h"
 #include "inc/message_sendable.h"
 #include "inc/callable_imp.h"
+#include "inc/exception.h"
 #include "request_impl.h"
 
 #include <boost/thread/recursive_mutex.hpp>
@@ -108,10 +109,17 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
 
     case RESPONSE: 
         {
-            shared_request sr(new request_impl(
-                shared_message_sendable(new boost_message_sendable(*stream)),
-                rpc.msgid, rpc.method, rpc.param, z));
-            process_response(rpc.msgid, rpc.param, z);
+            object& result = rpc.method;
+            object& error = rpc.param;
+
+            if (!error.is_nil()) {
+                shared_request sr(new request_impl(
+                    shared_message_sendable(new boost_message_sendable(*stream)),
+                    rpc.msgid, rpc.method, rpc.param, z));
+                process_response(rpc.msgid, rpc.param, z);
+            }
+            else
+                process_error_response(rpc.msgid, result, z);
         }
         break;
 
@@ -178,6 +186,28 @@ void session::process_response(msgpack::myrpc::msgid_t msgid, msgpack::object ob
     if (i != pimpl->promise_map.end()) {
         pimpl->not_used_promises.erase(msgid);
         i->second->set_value(msgpack_object_holder(obj, z));
+    }
+}
+
+
+void session::process_error_response(msgpack::myrpc::msgid_t msgid, msgpack::object err, msgpack::myrpc::auto_zone z)
+{
+    session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
+    session_impl::promise_map_type::iterator i = pimpl->promise_map.find(msgid);
+    if (i == pimpl->promise_map.end()) return; // no such id
+
+    pimpl->not_used_promises.erase(msgid);
+
+    if (err.type == msgpack::type::POSITIVE_INTEGER && err.via.u64 == NO_METHOD_ERROR)
+        i->second->set_exception(boost::copy_exception(no_method_error()));
+	else if (err.type == msgpack::type::POSITIVE_INTEGER && err.via.u64 == ARGUMENT_ERROR)
+        i->second->set_exception(boost::copy_exception(argument_error()));
+    else {
+		std::ostringstream os;
+		os << "remote error: ";
+		os << err;
+
+        i->second->set_exception(boost::copy_exception(remote_error(os.str())));
     }
 }
 

@@ -254,6 +254,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\inc\exception.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\inc\impl_fwd.h"
 					>
 				</File>

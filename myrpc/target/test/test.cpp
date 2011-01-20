@@ -28,6 +28,26 @@ namespace {
 }
 #endif
 
+class thread_wait_helper {
+public:
+    thread_wait_helper(boost::thread& t, boost::shared_ptr<msgpack::myrpc::stream_tcp_socket> s) : 
+      thread(t), socket(s)
+    {}
+
+    ~thread_wait_helper()
+    {
+        // close socket & session
+        boost::system::error_code ec;
+        socket->close(ec);
+        // wait for thread
+        thread.join();
+    }
+
+
+protected:
+    boost::thread& thread;
+    boost::shared_ptr<msgpack::myrpc::stream_tcp_socket> socket;
+};
 void run_client_test()
 {
     using namespace boost::asio;
@@ -52,8 +72,9 @@ void run_client_test()
 
         s->start();
         boost::thread t(boost::bind(&io_service::run, &io_client));
+        thread_wait_helper tw(t, socket);
 
-        callable cc = s->call("add", -12, 13);
+        callable cc = s->call("addAAA", -12, 13);
         int i = cc.get<int>();
         printf("i = %d\n", i);
         try {
@@ -67,16 +88,6 @@ void run_client_test()
         printf("i = %d\n", i);
         std::string str = s->call("echo", std::string("aaaBBB")).get<std::string>();
         printf("str = %s\n", str.c_str());
-        /*
-        s->notify("echo", std::string("test string"));
-        boost::this_thread::sleep(boost::posix_time::seconds(1)); 
-        */
-
-        // close socket & session
-        boost::system::error_code ec;
-        socket->close(ec);
-
-        t.join();
     }
     catch (const boost::exception& e)
     {

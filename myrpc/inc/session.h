@@ -45,6 +45,7 @@ public:
 protected:
     callable create_call(session_id_type id);
     void process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z);
+    void process_error_response(msgpack::myrpc::msgid_t msgid, msgpack::object err, msgpack::myrpc::auto_zone z);
 
     void handle_read(const boost::system::error_code& error, size_t bytes_transferred);
 
