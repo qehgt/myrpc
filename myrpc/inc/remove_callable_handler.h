@@ -9,7 +9,7 @@ namespace myrpc {
 class remove_callable_handler_type {
 public:
     virtual ~remove_callable_handler_type() {}
-    virtual void remove_unused_callable(session_id_type id, bool reset_data) = 0;
+    virtual void remove_unused_callable(session_id_type id) = 0;
 };
 
 

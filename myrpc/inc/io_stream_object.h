@@ -17,8 +17,9 @@ class io_stream_object {
 public:
     virtual ~io_stream_object() {}
 
-    virtual size_t write(const void* data, size_t size, boost::system::error_code& ec) = 0;
+    virtual size_t write(const void* data, size_t size) = 0; // can throw exceptions
     virtual void async_read_some(void* data, size_t size, read_handler_type* handler) = 0;
+    virtual boost::system::error_code close(boost::system::error_code& ec) = 0;
 };
 
 } // namespace myrpc {

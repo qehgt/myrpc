@@ -5,6 +5,7 @@
 
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/system/system_error.hpp>
 
 namespace msgpack {
 namespace myrpc {
@@ -17,23 +18,35 @@ public:
 
     void send_data(msgpack::sbuffer* sbuf)
     {
-        boost::system::error_code ec;
-        s.write(sbuf->data(), sbuf->size(), ec);
+        try {
+            s.write(sbuf->data(), sbuf->size());
+        }
+        catch (...) {
+            ::free(sbuf->data());
+            sbuf->release();
+            boost::system::error_code ec;
+            s.close(ec);
+            throw;
+        }
         ::free(sbuf->data());
         sbuf->release();
-
-        // TODO: what should we do with socket in case of error?
     }
 
     void send_data(msgpack::myrpc::auto_vreflife vbuf)
     {
-        boost::system::error_code ec;
         const struct iovec* vec = vbuf->vector();
         size_t veclen = vbuf->vector_size();
 
+        try {
         for(size_t i = 0; i < veclen; ++i)
-            s.write(vec[i].iov_base, vec[i].iov_len, ec);
-        // TODO: what should we do with socket in case of error?
+            s.write(vec[i].iov_base, vec[i].iov_len);
+        }
+        catch (...) {
+            // close socket on error
+            boost::system::error_code ec;
+            s.close(ec);
+            throw;
+        }
     }
 
 protected:
@@ -48,10 +61,12 @@ struct session::session_impl {
 
     typedef boost::shared_ptr<boost::promise<msgpack_object_holder> > promise_type;
     typedef std::map<session_id_type, promise_type> promise_map_type;
+    typedef std::set<session_id_type> not_used_promises_type;
 
     typedef boost::recursive_mutex mutex_type;
     mutex_type mutex;
     promise_map_type promise_map;
+    not_used_promises_type not_used_promises;
 
     enum { max_length = 32 * 1024 };
 
@@ -132,17 +147,26 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
 
         stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
     }
+    else {
+        boost::system::error_code ec = error;
+        stream->close(ec);
+        
+        // set value for orphaned promises
+        boost::exception_ptr e = boost::copy_exception(boost::system::system_error(error));
+        session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
+
+        for (session_impl::not_used_promises_type::iterator i = pimpl->not_used_promises.begin();
+            i != pimpl->not_used_promises.end();
+            ++i)
+        {
+            pimpl->promise_map[*i]->set_exception(e);
+        }
+    }
 }
 
-void session::remove_unused_callable(session_id_type id, bool reset_data)
+void session::remove_unused_callable(session_id_type id)
 {
     session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
-
-    // There is no clients for this 'promise',
-    // so, we can setup it to default value before deleting.
-    // The only reason to do it is calm debuggers that detect throwning exception in boost library
-    if (reset_data)
-        pimpl->promise_map[id]->set_value(msgpack_object_holder());
     pimpl->promise_map.erase(id);
 }
 
@@ -151,8 +175,10 @@ void session::process_response(msgpack::myrpc::msgid_t msgid, msgpack::object ob
     session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
 
     session_impl::promise_map_type::iterator i = pimpl->promise_map.find(msgid);
-    if (i != pimpl->promise_map.end())
+    if (i != pimpl->promise_map.end()) {
+        pimpl->not_used_promises.erase(msgid);
         i->second->set_value(msgpack_object_holder(obj, z));
+    }
 }
 
 callable session::create_call(session_id_type id)
@@ -162,6 +188,7 @@ callable session::create_call(session_id_type id)
     // create new future
     session_impl::promise_type new_promise(new boost::promise<msgpack_object_holder>);
     pimpl->promise_map[id] = new_promise;
+    pimpl->not_used_promises.insert(id);
     future_data f(new_promise->get_future());
     return callable(boost::shared_ptr<callable_imp>(
         new callable_imp(id, f, boost::static_pointer_cast<remove_callable_handler_type>(shared_from_this()))));

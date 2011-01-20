@@ -9,7 +9,7 @@ callable_imp::~callable_imp()
 {
     if (boost::shared_ptr<remove_callable_handler_type> r = weak_session_ptr.lock())
     {
-        r->remove_unused_callable(id, !f.has_value());
+        r->remove_unused_callable(id);
     }
 }
 

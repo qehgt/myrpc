@@ -39,7 +39,7 @@ void run_client_test()
     try {
         io_service io_client;
         tcp::resolver resolver(io_client);
-        tcp::resolver::query query(tcp::v4(), "127.0.0.1", PORT);
+        tcp::resolver::query query(tcp::v4(), "10.168.7.7", PORT);
         tcp::resolver::iterator iterator = resolver.resolve(query);
         boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(io_client));
         socket->connect(*iterator);
@@ -56,7 +56,14 @@ void run_client_test()
         callable cc = s->call("add", -12, 13);
         int i = cc.get<int>();
         printf("i = %d\n", i);
-        i = s->call("add", 12, 13).get<int>();
+        try {
+            i = s->call("add", 12, 13).get<int>();
+        }
+        catch (const std::exception& e)
+        {
+            printf("internal catch: %s\n", e.what());
+        }
+
         printf("i = %d\n", i);
         std::string str = s->call("echo", std::string("aaaBBB")).get<std::string>();
         printf("str = %s\n", str.c_str());
@@ -66,13 +73,21 @@ void run_client_test()
         */
 
         // close socket & session
-        socket->close();
+        boost::system::error_code ec;
+        socket->close(ec);
 
         t.join();
+    }
+    catch (const boost::exception& e)
+    {
+        printf("boost ex: %s\n", boost::diagnostic_information(e).c_str());
     }
     catch (const std::exception& e)
     {
         printf("ex: %s\n", e.what());
+    }
+    catch (...) {
+        printf("client: unknown ex=\n");
     }
 }
 
@@ -81,6 +96,18 @@ int main()
 {
     using namespace msgpack;
     using namespace msgpack::myrpc;
+
+    try {
+        boost::thread t_client(run_client_test);
+        t_client.join();
+        return 0;
+    } catch (const std::exception& e) {
+        printf("main: ex=%s\n", e.what());
+    } catch (...) {
+        printf("main: unknown ex\n");
+    }
+    return 0;
+
     try {
         using namespace boost::asio;
         const int PORT = 18811;
@@ -103,7 +130,7 @@ int main()
         t.join();
         t_client.join();
     }
-    catch (const std::exception& e) {
+    catch (std::exception& e) {
         printf("main: ex=%s\n", e.what());
     }
     return 0;

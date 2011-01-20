@@ -6,10 +6,10 @@
 namespace msgpack {
 namespace myrpc {
 
-size_t stream_tcp_socket::write(const void* data, size_t size, boost::system::error_code& ec)
+size_t stream_tcp_socket::write(const void* data, size_t size)
 {
     return boost::asio::write(*this, boost::asio::buffer(data, size),
-        boost::asio::transfer_all(), ec);
+        boost::asio::transfer_all());
 }
 
 void stream_tcp_socket::async_read_some(void* data, size_t size, read_handler_type* handler)
@@ -18,6 +18,12 @@ void stream_tcp_socket::async_read_some(void* data, size_t size, read_handler_ty
         boost::bind(&read_handler_type::handle_read, handler,
         boost::asio::placeholders::error,
         boost::asio::placeholders::bytes_transferred));
+}
+
+boost::system::error_code stream_tcp_socket::close(boost::system::error_code& ec)
+{
+    boost::asio::ip::tcp::socket& s = *this;
+    return s.close(ec);
 }
 
 } // namespace myrpc {

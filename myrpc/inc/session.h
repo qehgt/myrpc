@@ -50,7 +50,7 @@ protected:
 
     void process_message(msgpack::object obj, msgpack::myrpc::auto_zone z);
 
-    void remove_unused_callable(session_id_type id, bool reset_data);
+    void remove_unused_callable(session_id_type id);
 
     struct session_impl;
     boost::shared_ptr<session_impl> pimpl;
@@ -93,8 +93,7 @@ inline callable session::call(const std::string& name)
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
-    boost::system::error_code ec;
-    stream->write(sbuf.data(), sbuf.size(), ec);
+    stream->write(sbuf.data(), sbuf.size());
 
     return ret;
 }
@@ -110,8 +109,7 @@ inline callable session::call(const std::string& name, const A1& a1)
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
-    boost::system::error_code ec;
-    stream->write(sbuf.data(), sbuf.size(), ec);
+    stream->write(sbuf.data(), sbuf.size());
 
     return ret;
 }
@@ -127,8 +125,7 @@ inline callable session::call(const std::string& name, const A1& a1, const A2& a
 
     msgpack::pack(sbuf, msg);
     callable ret = create_call(id);
-    boost::system::error_code ec;
-    stream->write(sbuf.data(), sbuf.size(), ec);
+    stream->write(sbuf.data(), sbuf.size());
 
     return ret;
 }
@@ -143,8 +140,7 @@ inline void session::notify(const std::string& name)
     message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params());
 
     msgpack::pack(sbuf, msg);
-    boost::system::error_code ec;
-    stream->write(sbuf.data(), sbuf.size(), ec);
+    stream->write(sbuf.data(), sbuf.size());
 }
 
 template <typename A1>
@@ -158,8 +154,7 @@ inline void session::notify(const std::string& name, const A1& a1)
     message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1));
 
     msgpack::pack(sbuf, msg);
-    boost::system::error_code ec;
-    stream->write(sbuf.data(), sbuf.size(), ec);
+    stream->write(sbuf.data(), sbuf.size());
 }
 
 template <typename A1, typename A2>
@@ -173,8 +168,7 @@ inline void session::notify(const std::string& name, const A1& a1, const A2& a2)
     message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2));
 
     msgpack::pack(sbuf, msg);
-    boost::system::error_code ec;
-    stream->write(sbuf.data(), sbuf.size(), ec);
+    stream->write(sbuf.data(), sbuf.size());
 }
 
 } // namespace rpc {
