@@ -160,14 +160,16 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
         stream->close(ec);
         
         // set value for orphaned promises
-        boost::exception_ptr e = boost::copy_exception(boost::system::system_error(error));
-        session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
+        if (!pimpl->not_used_promises.empty()) {
+            boost::exception_ptr e = boost::copy_exception(boost::system::system_error(error));
+            session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
 
-        for (session_impl::not_used_promises_type::iterator i = pimpl->not_used_promises.begin();
-            i != pimpl->not_used_promises.end();
-            ++i)
-        {
-            pimpl->promise_map[*i]->set_exception(e);
+            for (session_impl::not_used_promises_type::iterator i = pimpl->not_used_promises.begin();
+                i != pimpl->not_used_promises.end();
+                ++i)
+            {
+                pimpl->promise_map[*i]->set_exception(e);
+            }
         }
     }
 }
