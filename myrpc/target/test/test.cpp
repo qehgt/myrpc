@@ -29,26 +29,6 @@ namespace {
 }
 #endif
 
-class thread_wait_helper {
-public:
-    thread_wait_helper(boost::thread& t, boost::shared_ptr<msgpack::myrpc::stream_tcp_socket> s) : 
-      thread(t), socket(s)
-    {}
-
-    ~thread_wait_helper()
-    {
-        // close socket & session
-        boost::system::error_code ec;
-        socket->close(ec);
-        // wait for thread
-        thread.join();
-    }
-
-
-protected:
-    boost::thread& thread;
-    boost::shared_ptr<msgpack::myrpc::stream_tcp_socket> socket;
-};
 void run_client_test()
 {
     using namespace boost::asio;
