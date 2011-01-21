@@ -1,4 +1,5 @@
-Program("rpc_test", ["target/test/test.cpp", "src/request.cc", "src/callable.cpp", "src/session.cpp", "src/stream_tcp_socket.cpp"], 
+Program("rpc_test", ["target/test/test.cpp", "src/request.cc", "src/callable.cpp", "src/session.cpp", "src/stream_tcp_socket.cpp",
+                     "src/tcp_client.cpp"], 
         CPPPATH = ["../../OUT/include",
                    "./",
                   "/home/vasily/Projects/efr_new/Boost/include"],
