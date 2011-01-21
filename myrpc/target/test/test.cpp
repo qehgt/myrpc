@@ -1,6 +1,7 @@
 #include "myecho_server.h"
 #include "inc/stream_tcp_socket.h"
 #include "inc/session.h"
+#include "inc/tcp_client.h"
 #include <boost/thread.hpp>
 
 #if defined(_MSC_VER) && defined(_DEBUG)
@@ -54,31 +55,16 @@ void run_client_test()
     using namespace boost::asio::ip;
     using namespace msgpack;
     using namespace msgpack::myrpc;
-    const char* PORT = "18811"; // ??
+    const char* port = "18811";
 
     try {
-        io_service io_client;
-        tcp::resolver resolver(io_client);
-        tcp::resolver::query query(tcp::v4(), "10.168.7.7", PORT);
-        tcp::resolver::iterator iterator = resolver.resolve(query);
-        boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(io_client));
-        socket->connect(*iterator);
+        tcp_client cli("10.168.7.7", port);
 
-        msgpack::myrpc::shared_dispatcher dispatcher(new msgpack::myrpc::dummy_dispatcher_type());
-        boost::shared_ptr<myrpc::session> s(new myrpc::session(
-            boost::static_pointer_cast<io_stream_object>(socket),
-            dispatcher
-            ));
-
-        s->start();
-        boost::thread t(boost::bind(&io_service::run, &io_client));
-        thread_wait_helper tw(t, socket);
-
-        callable cc = s->call("addAAA", -12, 13);
+        callable cc = cli.call("add", -12, 13);
         int i = cc.get<int>();
         printf("i = %d\n", i);
         try {
-            i = s->call("add", 12, 13).get<int>();
+            i = cli.call("add", 12, 13).get<int>();
         }
         catch (const std::exception& e)
         {
@@ -86,7 +72,7 @@ void run_client_test()
         }
 
         printf("i = %d\n", i);
-        std::string str = s->call("echo", std::string("aaaBBB")).get<std::string>();
+        std::string str = cli.call("echo", std::string("aaaBBB")).get<std::string>();
         printf("str = %s\n", str.c_str());
     }
     catch (const boost::exception& e)

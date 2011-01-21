@@ -232,6 +232,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\..\src\tcp_client.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
