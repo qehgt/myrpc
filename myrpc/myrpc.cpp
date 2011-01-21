@@ -27,7 +27,7 @@ void run_client_test()
             boost::static_pointer_cast<io_stream_object>(socket),
             dispatcher
             ));
-
+AAA
         s->start();
         boost::thread t(boost::bind(&io_service::run, &io_client));
 
