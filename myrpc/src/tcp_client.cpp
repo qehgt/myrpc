@@ -29,8 +29,7 @@ tcp_client::tcp_client(const char* host, const char* service_name)
         dispatcher));
 
     session->start();
-    boost::thread t(boost::bind(&io_service::run, &pimpl->io));
-    pimpl->thread.swap(t);
+    pimpl->thread = boost::thread(boost::bind(&io_service::run, &pimpl->io));
 }
 
 tcp_client::~tcp_client()

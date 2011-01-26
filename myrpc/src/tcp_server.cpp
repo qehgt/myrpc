@@ -37,8 +37,7 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
         boost::bind(&tcp_server::handle_accept, this, session,
         boost::asio::placeholders::error));
 
-    boost::thread t(boost::bind(&boost::asio::io_service::run, &pimpl->io));
-    pimpl->thread.swap(t);
+    pimpl->thread = boost::thread(boost::bind(&boost::asio::io_service::run, &pimpl->io));
 }
 
 void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system::error_code& error)
