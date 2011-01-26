@@ -27,7 +27,7 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
 
 {
     boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io));
-    boost::shared_ptr<session> session(new session(
+    boost::shared_ptr<session> session(new myrpc::session(
         boost::static_pointer_cast<io_stream_object>(socket),
         pimpl->dispatcher));
 
