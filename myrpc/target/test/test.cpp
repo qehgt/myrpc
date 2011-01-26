@@ -75,30 +75,6 @@ int main()
     using namespace msgpack::myrpc;
 
     try {
-        /*
-        using namespace boost::asio;
-        const int PORT = 18811;
-        io_service io;
-
-        msgpack::myrpc::shared_dispatcher dispatcher(new myecho());
-        boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(io));
-        boost::shared_ptr<msgpack::myrpc::session> s(new msgpack::myrpc::session(
-            boost::static_pointer_cast<io_stream_object>(socket),
-            dispatcher));
-
-        boost::thread t_client(run_client_test);
-
-        ip::tcp::acceptor acceptor(io, ip::tcp::endpoint(ip::tcp::v4(), PORT));
-        acceptor.accept(*socket);
-
-        s->start();
-        boost::thread t(boost::bind(&io_service::run, &io));
-
-        t.join();
-        t_client.join();
-        */
-
-        using namespace boost::asio;
         const int PORT = 18811;
 
         tcp_server server(PORT, shared_dispatcher(new myecho()));
