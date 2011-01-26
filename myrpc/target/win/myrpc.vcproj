@@ -286,15 +286,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\session_id.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\inc\stream_tcp_socket.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\inc\tcp_client.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\inc\tcp_server.h"
 					>
 				</File>
 				<File

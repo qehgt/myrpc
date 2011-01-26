@@ -29,7 +29,7 @@ typedef boost::shared_future<msgpack_object_holder> future_data;
 
 class callable_imp : public boost::enable_shared_from_this<callable_imp> {
 public:
-    callable_imp(session_id_type id, const future_data& future_result, const boost::shared_ptr<remove_callable_handler_type>& session) : 
+    callable_imp(request_id_type id, const future_data& future_result, const boost::shared_ptr<remove_callable_handler_type>& session) : 
       id(id), f(future_result), weak_session_ptr(session)
       {}
     ~callable_imp();
@@ -37,7 +37,7 @@ public:
     future_data& get_future() { return f; }
 
 protected:
-    session_id_type id;
+    request_id_type id;
     future_data f;
     boost::weak_ptr<remove_callable_handler_type> weak_session_ptr;
 };

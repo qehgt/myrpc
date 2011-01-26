@@ -102,7 +102,7 @@ public:
 
 
 protected:
-    callable create_call(session_id_type id);
+    callable create_call(request_id_type id);
     void process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z);
     void process_error_response(msgpack::myrpc::msgid_t msgid, msgpack::object err, msgpack::myrpc::auto_zone z);
 
@@ -110,12 +110,12 @@ protected:
 
     void process_message(msgpack::object obj, msgpack::myrpc::auto_zone z);
 
-    void remove_unused_callable(session_id_type id);
+    void remove_unused_callable(request_id_type id);
 
     struct session_impl;
     boost::shared_ptr<session_impl> pimpl;
 
-    volatile session_id_type current_id;
+    volatile request_id_type current_id;
     boost::shared_ptr<io_stream_object> stream;
     msgpack::myrpc::shared_dispatcher dispatcher;
     on_finish_handler_type* on_finish_handler;
@@ -145,7 +145,7 @@ struct message_rpc {
 
 callable session::call(const std::string& name)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
@@ -161,7 +161,7 @@ callable session::call(const std::string& name)
 inline void session::notify(const std::string& name)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
@@ -175,7 +175,7 @@ template <typename A1>
 inline callable session::call(const std::string& name,
     const A1& a1)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1> Params;
@@ -193,7 +193,7 @@ inline void session::notify(const std::string& name,
     const A1& a1)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1> Params;
@@ -207,7 +207,7 @@ template <typename A1, typename A2>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2> Params;
@@ -225,7 +225,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2> Params;
@@ -239,7 +239,7 @@ template <typename A1, typename A2, typename A3>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3> Params;
@@ -257,7 +257,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3> Params;
@@ -271,7 +271,7 @@ template <typename A1, typename A2, typename A3, typename A4>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4> Params;
@@ -289,7 +289,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4> Params;
@@ -303,7 +303,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5> Params;
@@ -321,7 +321,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5> Params;
@@ -335,7 +335,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6> Params;
@@ -353,7 +353,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6> Params;
@@ -367,7 +367,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7> Params;
@@ -385,7 +385,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7> Params;
@@ -399,7 +399,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8> Params;
@@ -417,7 +417,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8> Params;
@@ -431,7 +431,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8, A9> Params;
@@ -449,7 +449,7 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8, A9> Params;

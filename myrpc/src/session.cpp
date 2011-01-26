@@ -61,8 +61,8 @@ struct session::session_impl {
     }
 
     typedef boost::shared_ptr<boost::promise<msgpack_object_holder> > promise_type;
-    typedef std::map<session_id_type, promise_type> promise_map_type;
-    typedef std::set<session_id_type> not_used_promises_type;
+    typedef std::map<request_id_type, promise_type> promise_map_type;
+    typedef std::set<request_id_type> not_used_promises_type;
 
     typedef boost::recursive_mutex mutex_type;
     mutex_type mutex;
@@ -181,7 +181,7 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
     if (error && on_finish_handler) on_finish_handler->on_session_finish(this);
 }
 
-void session::remove_unused_callable(session_id_type id)
+void session::remove_unused_callable(request_id_type id)
 {
     session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
     pimpl->promise_map.erase(id);
@@ -220,7 +220,7 @@ void session::process_error_response(msgpack::myrpc::msgid_t msgid, msgpack::obj
     }
 }
 
-callable session::create_call(session_id_type id)
+callable session::create_call(request_id_type id)
 {
     session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
 

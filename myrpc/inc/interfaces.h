@@ -4,13 +4,14 @@
 #include <stdlib.h>
 #include <boost/system/error_code.hpp>
 #include <boost/shared_ptr.hpp>
-#include "session_id.h"
 #include "request.h"
 
 namespace msgpack {
 namespace myrpc {
 
 class session; // forward declaration
+
+typedef boost::uint32_t request_id_type;
 
 class read_handler_type {
 public:
@@ -36,7 +37,7 @@ public:
 class remove_callable_handler_type {
 public:
     virtual ~remove_callable_handler_type() {}
-    virtual void remove_unused_callable(session_id_type id) = 0;
+    virtual void remove_unused_callable(request_id_type id) = 0;
 };
 
 
