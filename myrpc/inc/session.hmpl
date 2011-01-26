@@ -7,11 +7,8 @@
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
-#include "dispatcher_type.h"
-#include "io_stream_object.h"
+#include "interfaces.h"
 #include "callable.h"
-#include "io_stream_object.h"
-#include "remove_callable_handler.h"
 
 namespace msgpack {
 namespace myrpc {
@@ -21,10 +18,11 @@ struct msgpack_object_holder; // forward declaration
 class session : public boost::enable_shared_from_this<session>, protected read_handler_type, public remove_callable_handler_type {
 public:
     session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher);
+    ~session();
 
     boost::shared_ptr<io_stream_object> get_stream_object();
 
-    void start();
+    void start(on_finish_handler_type* on_finish_handler = NULL);
 
     inline callable call(const std::string& name);
 
@@ -42,7 +40,7 @@ public:
 %gen_call("void", "notify")
 
 protected:
-    callable create_call(session_id_type id);
+    callable create_call(request_id_type id);
     void process_response(msgpack::myrpc::msgid_t msgid, msgpack::object obj, msgpack::myrpc::auto_zone z);
     void process_error_response(msgpack::myrpc::msgid_t msgid, msgpack::object err, msgpack::myrpc::auto_zone z);
 
@@ -50,14 +48,15 @@ protected:
 
     void process_message(msgpack::object obj, msgpack::myrpc::auto_zone z);
 
-    void remove_unused_callable(session_id_type id);
+    void remove_unused_callable(request_id_type id);
 
     struct session_impl;
     boost::shared_ptr<session_impl> pimpl;
 
-    volatile session_id_type current_id;
+    volatile request_id_type current_id;
     boost::shared_ptr<io_stream_object> stream;
     msgpack::myrpc::shared_dispatcher dispatcher;
+    on_finish_handler_type* on_finish_handler;
 };
 
 template <typename M, typename P>
@@ -84,7 +83,7 @@ struct message_rpc {
 
 callable session::call(const std::string& name)
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
@@ -100,7 +99,7 @@ callable session::call(const std::string& name)
 inline void session::notify(const std::string& name)
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
@@ -116,7 +115,7 @@ template <[%gen.template%]>
 inline callable session::call(const std::string& name,
     [%gen.args_const_ref%])
 {
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<[%gen.types%]> Params;
@@ -134,7 +133,7 @@ inline void session::notify(const std::string& name,
     [%gen.args_const_ref%])
 {
     using namespace msgpack;
-    session_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<[%gen.types%]> Params;
