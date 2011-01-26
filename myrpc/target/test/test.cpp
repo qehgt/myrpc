@@ -2,6 +2,7 @@
 #include "inc/stream_tcp_socket.h"
 #include "inc/session.h"
 #include "inc/tcp_client.h"
+#include "inc/tcp_server.h"
 #include <boost/thread.hpp>
 
 #if defined(_MSC_VER) && defined(_DEBUG)
@@ -38,7 +39,7 @@ void run_client_test()
     const char* port = "18811";
 
     try {
-        tcp_client cli("10.168.7.7", port);
+        tcp_client cli("localhost", port);
 
         callable cc = cli.call("add", -12, 13);
         int i = cc.get<int>();
@@ -68,24 +69,13 @@ void run_client_test()
     }
 }
 
-
 int main()
 {
     using namespace msgpack;
     using namespace msgpack::myrpc;
 
     try {
-        boost::thread t_client(run_client_test);
-        t_client.join();
-        return 0;
-    } catch (const std::exception& e) {
-        printf("main: ex=%s\n", e.what());
-    } catch (...) {
-        printf("main: unknown ex\n");
-    }
-    return 0;
-
-    try {
+        /*
         using namespace boost::asio;
         const int PORT = 18811;
         io_service io;
@@ -106,9 +96,22 @@ int main()
 
         t.join();
         t_client.join();
+        */
+
+        using namespace boost::asio;
+        const int PORT = 18811;
+
+        tcp_server server(PORT, shared_dispatcher(new myecho()));
+
+        boost::thread t_client1(run_client_test);
+        boost::thread t_client2(run_client_test);
+        run_client_test();
+        t_client1.join();
+        t_client2.join();
     }
     catch (std::exception& e) {
         printf("main: ex=%s\n", e.what());
     }
+
     return 0;
 }

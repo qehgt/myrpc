@@ -7,11 +7,8 @@
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
-#include "dispatcher_type.h"
-#include "io_stream_object.h"
+#include "interfaces.h"
 #include "callable.h"
-#include "io_stream_object.h"
-#include "remove_callable_handler.h"
 
 namespace msgpack {
 namespace myrpc {
@@ -21,10 +18,11 @@ struct msgpack_object_holder; // forward declaration
 class session : public boost::enable_shared_from_this<session>, protected read_handler_type, public remove_callable_handler_type {
 public:
     session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher);
+    ~session();
 
     boost::shared_ptr<io_stream_object> get_stream_object();
 
-    void start();
+    void start(on_finish_handler_type* on_finish_handler = NULL);
 
     inline callable call(const std::string& name);
 
@@ -120,6 +118,7 @@ protected:
     volatile session_id_type current_id;
     boost::shared_ptr<io_stream_object> stream;
     msgpack::myrpc::shared_dispatcher dispatcher;
+    on_finish_handler_type* on_finish_handler;
 };
 
 template <typename M, typename P>

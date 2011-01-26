@@ -1,7 +1,7 @@
 #ifndef H_MYECHO_SERVER_H
 #define H_MYECHO_SERVER_H
 
-#include "inc/dispatcher_type.h"
+#include "inc/interfaces.h"
 
 class myecho : public msgpack::myrpc::dispatcher_type {
 public:

@@ -2,7 +2,7 @@
 #define H_MYRPC_STREAM_TCP_SOCKET_H
 
 #include <boost/asio.hpp>
-#include "io_stream_object.h"
+#include "interfaces.h"
 
 namespace msgpack {
 namespace myrpc {

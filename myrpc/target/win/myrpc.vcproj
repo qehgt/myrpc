@@ -236,6 +236,10 @@
 				RelativePath="..\..\src\tcp_client.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\tcp_server.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -254,19 +258,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\inc\dispatcher_type.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\inc\exception.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\inc\impl_fwd.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\inc\io_stream_object.h"
 					>
 				</File>
 				<File
@@ -295,6 +291,10 @@
 				</File>
 				<File
 					RelativePath="..\..\inc\stream_tcp_socket.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\inc\tcp_client.h"
 					>
 				</File>
 				<File

@@ -10,7 +10,6 @@
 #include <boost/thread/future.hpp>
 #include "msgpack_header.h"
 #include "types.h"
-#include "remove_callable_handler.h"
 
 namespace msgpack {
 namespace myrpc {

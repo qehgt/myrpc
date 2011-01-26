@@ -78,7 +78,12 @@ session::session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myr
     : current_id(0), 
     stream(stream_object),
     dispatcher(dispatcher),
-    pimpl(new session_impl())
+    pimpl(new session_impl()),
+    on_finish_handler(NULL)
+{
+}
+
+session::~session()
 {
 }
 
@@ -172,6 +177,8 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
             }
         }
     }
+
+    if (error && on_finish_handler) on_finish_handler->on_session_finish(this);
 }
 
 void session::remove_unused_callable(session_id_type id)
@@ -226,8 +233,9 @@ callable session::create_call(session_id_type id)
         new callable_imp(id, f, boost::static_pointer_cast<remove_callable_handler_type>(shared_from_this()))));
 }
 
-void session::start()
+void session::start(on_finish_handler_type* on_finish_handler)
 {
+    this->on_finish_handler = on_finish_handler;
     stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
 }
 
