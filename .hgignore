@@ -4,8 +4,10 @@ Release
 myrpc.ncb
 myrpc.suo
 bin
+myrpc/rpc_test
 
 syntax: glob
 *.user
 *.o
 .sconsign.dblite
+.emacs.desktop
