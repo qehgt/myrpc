@@ -2,7 +2,7 @@
 #define H_MYRPC_TCP_CLIENT_H
 
 #include <boost/shared_ptr.hpp>
-#include "inc/session.h"
+#include "session.h"
 
 namespace msgpack {
 namespace myrpc {
