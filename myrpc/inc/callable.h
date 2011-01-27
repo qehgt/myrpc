@@ -21,6 +21,11 @@ public:
         return get_object().as<T>();
     }
 
+    template<>
+    void get() {
+        get_object().as<msgpack::type::nil>();
+    }
+
 protected:
     boost::shared_ptr<callable_imp> c;
 

@@ -46,7 +46,7 @@ void run_client_test()
         int i = cc.get<int>();
         printf("i = %d\n", i);
         try {
-            i = cli.call("add", 12, 13).get<int>();
+            i = cli.call("add", 12).get<int>();
         }
         catch (const std::exception& e)
         {
