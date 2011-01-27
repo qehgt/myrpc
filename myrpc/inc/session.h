@@ -133,14 +133,14 @@ struct message_rpc {
 
 	msgpack::myrpc::message_type_t type;
     msgpack::myrpc::msgid_t msgid;
-    M method;
-	P param;
+    M method; // also 'error' in Response
+    P param;  // also 'result' in Response
 
     bool is_request()  const { return type == msgpack::myrpc::REQUEST;  }
-	bool is_response() const { return type == msgpack::myrpc::RESPONSE; }
-	bool is_notify()   const { return type == msgpack::myrpc::NOTIFY;   }
+    bool is_response() const { return type == msgpack::myrpc::RESPONSE; }
+    bool is_notify()   const { return type == msgpack::myrpc::NOTIFY;   }
 
-	MSGPACK_DEFINE(type, msgid, method, param);
+    MSGPACK_DEFINE(type, msgid, method, param);
 };
 
 callable session::call(const std::string& name)
