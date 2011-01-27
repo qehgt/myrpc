@@ -4,6 +4,7 @@
 #include "inc/tcp_client.h"
 #include "inc/tcp_server.h"
 #include <boost/thread.hpp>
+#include <boost/make_shared.hpp>
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 #include <crtdbg.h>
@@ -73,11 +74,12 @@ int main()
 {
     using namespace msgpack;
     using namespace msgpack::myrpc;
+    using namespace boost;
 
     try {
         const int PORT = 18811;
 
-        tcp_server server(PORT, shared_dispatcher(new myecho()));
+        tcp_server server(PORT, make_shared<myecho>());
 
         boost::thread t_client1(run_client_test);
         boost::thread t_client2(run_client_test);

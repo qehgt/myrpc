@@ -266,6 +266,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\inc\interfaces.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\inc\message_sendable.h"
 					>
 				</File>

@@ -45,6 +45,11 @@ class dispatcher_type {
 public:
     virtual ~dispatcher_type() {}
 
+    /// Called once during starting of a new session
+    virtual void on_start(boost::weak_ptr<session> session_ptr)
+    {}
+
+    /// Main dispatch routine
     virtual void dispatch(msgpack::myrpc::request req) = 0;
 };
 typedef boost::shared_ptr<dispatcher_type> shared_dispatcher;

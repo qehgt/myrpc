@@ -234,6 +234,7 @@ callable session::create_call(request_id_type id)
 
 void session::start(on_finish_handler_type* on_finish_handler)
 {
+    dispatcher->on_start(shared_from_this());
     this->on_finish_handler = on_finish_handler;
     stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
 }
