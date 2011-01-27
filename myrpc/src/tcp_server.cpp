@@ -28,8 +28,7 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
 {
     boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io));
     boost::shared_ptr<session> session(new myrpc::session(
-        boost::static_pointer_cast<io_stream_object>(socket),
-        pimpl->dispatcher));
+        socket, pimpl->dispatcher));
 
     pimpl->session_holder[session.get()] = session;
 
@@ -48,8 +47,7 @@ void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system
 
         boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io));
         s = boost::shared_ptr<session>(new session(
-            boost::static_pointer_cast<io_stream_object>(socket),
-            pimpl->dispatcher));
+            socket, pimpl->dispatcher));
 
         pimpl->session_holder[s.get()] = s;
 

@@ -25,8 +25,7 @@ tcp_client::tcp_client(const char* host, const char* service_name)
     msgpack::myrpc::shared_dispatcher dispatcher(new msgpack::myrpc::dummy_dispatcher_type());
 
     session = boost::shared_ptr<myrpc::session>(new myrpc::session(
-        boost::static_pointer_cast<io_stream_object>(pimpl->socket),
-        dispatcher));
+        pimpl->socket, dispatcher));
 
     session->start();
     pimpl->thread = boost::thread(boost::bind(&io_service::run, &pimpl->io));

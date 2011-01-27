@@ -229,8 +229,7 @@ callable session::create_call(request_id_type id)
     pimpl->promise_map[id] = new_promise;
     pimpl->not_used_promises.insert(id);
     future_data f(new_promise->get_future());
-    return callable(boost::shared_ptr<callable_imp>(
-        new callable_imp(id, f, boost::static_pointer_cast<remove_callable_handler_type>(shared_from_this()))));
+    return callable(boost::shared_ptr<callable_imp>(new callable_imp(id, f, shared_from_this())));
 }
 
 void session::start(on_finish_handler_type* on_finish_handler)
