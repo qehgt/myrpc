@@ -158,6 +158,7 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
             process_message(obj, z);
         }
 
+        pimpl->unpacker.reserve_buffer(pimpl->max_length);
         stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
     }
     else {
