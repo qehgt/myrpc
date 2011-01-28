@@ -9,7 +9,7 @@ namespace myrpc {
 
 class tcp_client {
 public:
-    tcp_client(const char* host, const char* service_name);
+    tcp_client(const char* host, const char* service_name, shared_dispatcher dispatcher = shared_dispatcher());
     ~tcp_client();
 
     inline callable call(const std::string& name);

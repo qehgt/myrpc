@@ -11,7 +11,7 @@ struct tcp_client::tcp_client_impl {
     boost::thread thread;
 };
 
-tcp_client::tcp_client(const char* host, const char* service_name)
+tcp_client::tcp_client(const char* host, const char* service_name, shared_dispatcher dispatcher)
     : pimpl(new tcp_client_impl())
 {
     using namespace boost::asio;
@@ -22,7 +22,9 @@ tcp_client::tcp_client(const char* host, const char* service_name)
     tcp::resolver::iterator iterator = resolver.resolve(query);
     pimpl->socket = boost::shared_ptr<stream_tcp_socket>(new stream_tcp_socket(pimpl->io));
     pimpl->socket->connect(*iterator);
-    msgpack::myrpc::shared_dispatcher dispatcher(new msgpack::myrpc::dummy_dispatcher_type());
+    
+    if (dispatcher.get() == NULL)
+        dispatcher = shared_dispatcher(new dummy_dispatcher_type());
 
     session = boost::shared_ptr<myrpc::session>(new myrpc::session(
         pimpl->socket, dispatcher));
