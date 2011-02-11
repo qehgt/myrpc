@@ -117,12 +117,8 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
             object& error = rpc.method;
             object& result = rpc.param;
 
-            if (error.is_nil()) {
-                shared_request sr(new request_impl(
-                    shared_message_sendable(new boost_message_sendable(*stream)),
-                    rpc.msgid, rpc.method, rpc.param, z));
+            if (error.is_nil())
                 process_response(rpc.msgid, rpc.param, z);
-            }
             else
                 process_error_response(rpc.msgid, error, z);
         }
