@@ -166,9 +166,9 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
         stream->close(ec);
         
         // set value for orphaned promises
+        session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
         if (!pimpl->not_used_promises.empty()) {
             boost::exception_ptr e = boost::copy_exception(boost::system::system_error(error));
-            session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
 
             for (session_impl::not_used_promises_type::iterator i = pimpl->not_used_promises.begin();
                 i != pimpl->not_used_promises.end();
@@ -185,6 +185,7 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
 void session::remove_unused_callable(request_id_type id)
 {
     session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
+    pimpl->not_used_promises.erase(id);
     pimpl->promise_map.erase(id);
 }
 
