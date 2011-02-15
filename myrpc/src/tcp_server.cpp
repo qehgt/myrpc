@@ -2,6 +2,7 @@
 #include "inc/stream_tcp_socket.h"
 #include "inc/session.h"
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 namespace msgpack {
 namespace myrpc {
@@ -21,6 +22,8 @@ struct tcp_server::tcp_server_impl {
     typedef boost::shared_ptr<msgpack::myrpc::session> created_session;
     typedef std::map<msgpack::myrpc::session*, created_session> session_holder_type;
     session_holder_type session_holder;
+    typedef boost::mutex mutex_type;
+    mutex_type mutex;
 };
 
 tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
@@ -50,7 +53,10 @@ void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system
         s = boost::shared_ptr<session>(new session(
             socket, pimpl->dispatcher));
 
-        pimpl->session_holder[s.get()] = s;
+        {
+            tcp_server_impl::mutex_type::scoped_lock lock(pimpl->mutex);
+            pimpl->session_holder[s.get()] = s;
+        }
 
         pimpl->acceptor.async_accept(*socket,
             boost::bind(&tcp_server::handle_accept, this, s,
@@ -62,11 +68,14 @@ tcp_server::~tcp_server()
 {
     pimpl->acceptor.close();
 
-    for (tcp_server_impl::session_holder_type::iterator i = pimpl->session_holder.begin();
-         i != pimpl->session_holder.end();
-         ++i)
     {
-        (*i).second->stop();
+        tcp_server_impl::mutex_type::scoped_lock lock(pimpl->mutex);
+        for (tcp_server_impl::session_holder_type::iterator i = pimpl->session_holder.begin();
+            i != pimpl->session_holder.end();
+            ++i)
+        {
+            (*i).second->stop();
+        }
     }
 
     if (pimpl->thread.joinable())
@@ -75,6 +84,7 @@ tcp_server::~tcp_server()
 
 void tcp_server::on_session_finish(session* s)
 {
+    tcp_server_impl::mutex_type::scoped_lock lock(pimpl->mutex);
     pimpl->session_holder.erase(s);
 }
 
