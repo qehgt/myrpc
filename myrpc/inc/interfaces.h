@@ -49,6 +49,12 @@ public:
     virtual void on_start(boost::weak_ptr<session> session_ptr)
     {}
 
+    /// Called when 'session' object is about to destroy
+    /// Complicated 'dispatcher' object should free all allocated resources 
+    /// and stop all threads
+    virtual void on_session_stop()
+    {}
+
     /// Main dispatch routine
     virtual void dispatch(msgpack::myrpc::request req) = 0;
 };

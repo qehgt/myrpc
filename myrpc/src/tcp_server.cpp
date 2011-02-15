@@ -19,7 +19,8 @@ struct tcp_server::tcp_server_impl {
     boost::thread thread;
 
     typedef boost::shared_ptr<msgpack::myrpc::session> created_session;
-    std::map<msgpack::myrpc::session*, created_session> session_holder;
+    typedef std::map<msgpack::myrpc::session*, created_session> session_holder_type;
+    session_holder_type session_holder;
 };
 
 tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
@@ -60,6 +61,14 @@ void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system
 tcp_server::~tcp_server()
 {
     pimpl->acceptor.close();
+
+    for (tcp_server_impl::session_holder_type::iterator i = pimpl->session_holder.begin();
+         i != pimpl->session_holder.end();
+         ++i)
+    {
+        (*i).second->stop();
+    }
+
     if (pimpl->thread.joinable())
         pimpl->thread.join();
 }

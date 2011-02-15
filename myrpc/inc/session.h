@@ -23,6 +23,7 @@ public:
     boost::shared_ptr<io_stream_object> get_stream_object();
 
     void start(on_finish_handler_type* on_finish_handler = NULL);
+    void stop();
 
     inline callable call(const std::string& name);
 
