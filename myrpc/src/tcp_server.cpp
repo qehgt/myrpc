@@ -78,6 +78,7 @@ tcp_server::~tcp_server()
         }
     }
 
+    pimpl->io.stop();
     if (pimpl->thread.joinable())
         pimpl->thread.join();
 }
