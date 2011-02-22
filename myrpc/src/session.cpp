@@ -161,7 +161,8 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
     else {
         boost::system::error_code ec = error;
         stream->close(ec);
-        
+        stop();
+
         // set value for orphaned promises
         session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
         if (!pimpl->not_used_promises.empty()) {
