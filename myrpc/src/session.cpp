@@ -93,7 +93,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     using namespace msgpack;
     using namespace msgpack::myrpc;
 
-    message_rpc<object, object> rpc;
+    msg_rpc rpc;
 
     try {
       obj.convert(&rpc); // ~~~ TODO: ?
@@ -106,30 +106,34 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     {
     case REQUEST: 
         {
+            msg_request<object, object> req;
+            obj.convert(&req);
             shared_request sr(new request_impl(
                 shared_message_sendable(new boost_message_sendable(*stream)),
-                rpc.msgid, rpc.method, rpc.param, z));
+                req.msgid, req.method, req.param, z));
             dispatcher->dispatch(request(sr));
         }
         break;
 
     case RESPONSE: 
         {
-            object& error = rpc.method;
-            object& result = rpc.param;
+            msg_response<object, object> res;
+            obj.convert(&res);
 
-            if (error.is_nil())
-                process_response(rpc.msgid, rpc.param, z);
+            if (res.error.is_nil())
+                process_response(res.msgid, res.result, z);
             else
-                process_error_response(rpc.msgid, error, z);
+                process_error_response(res.msgid, res.error, z);
         }
         break;
 
     case NOTIFY: 
         {
+            msg_notify<object, object> notify;
+            obj.convert(&notify);
             shared_request sr(new request_impl(
                 shared_message_sendable(new boost_message_sendable(*stream)),
-                0, rpc.method, rpc.param, z));
+                0, notify.method, notify.param, z));
             dispatcher->dispatch(request(sr));
         }
         break;
