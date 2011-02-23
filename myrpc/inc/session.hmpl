@@ -20,6 +20,8 @@ public:
     session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher);
     ~session();
 
+    void stop();
+
     boost::shared_ptr<io_stream_object> get_stream_object();
 
     void start(on_finish_handler_type* on_finish_handler = NULL);
@@ -32,7 +34,7 @@ public:
 %varlen_each do |gen|
     template <[%gen.template%]>
     inline [%ret%] [%name%](const std::string& name,
-			[%gen.args_const_ref%]);
+      [%gen.args_const_ref%]);
 
 %end
 %end
@@ -61,24 +63,24 @@ protected:
 
 template <typename M, typename P>
 struct message_rpc {
-	message_rpc() { }
-	message_rpc(msgpack::myrpc::message_type_t t,
+  message_rpc() { }
+  message_rpc(msgpack::myrpc::message_type_t t,
         msgpack::myrpc::msgid_t id,
         M m,
         P p)
         : type(t), msgid(id), method(m), param(p)
     {}
 
-	msgpack::myrpc::message_type_t type;
+  msgpack::myrpc::message_type_t type;
     msgpack::myrpc::msgid_t msgid;
     M method;
-	P param;
+    P param;
 
     bool is_request()  const { return type == msgpack::myrpc::REQUEST;  }
-	bool is_response() const { return type == msgpack::myrpc::RESPONSE; }
-	bool is_notify()   const { return type == msgpack::myrpc::NOTIFY;   }
+    bool is_response() const { return type == msgpack::myrpc::RESPONSE; }
+    bool is_notify()   const { return type == msgpack::myrpc::NOTIFY;   }
 
-	MSGPACK_DEFINE(type, msgid, method, param);
+    MSGPACK_DEFINE(type, msgid, method, param);
 };
 
 callable session::call(const std::string& name)
@@ -99,11 +101,10 @@ callable session::call(const std::string& name)
 inline void session::notify(const std::string& name)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params());
+    msg_notify<std::string, Params> msg(name, Params());
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -133,11 +134,11 @@ inline void session::notify(const std::string& name,
     [%gen.args_const_ref%])
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<[%gen.types%]> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params([%gen.params%]));
+    typedef type::tuple<[%gen.types_const_ref%]> Params;
+    msg_notify<std::string, Params> msg(name, Params([%gen.params%]));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());

@@ -20,10 +20,11 @@ public:
     session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher);
     ~session();
 
+    void stop();
+
     boost::shared_ptr<io_stream_object> get_stream_object();
 
     void start(on_finish_handler_type* on_finish_handler = NULL);
-    void stop();
 
     inline callable call(const std::string& name);
 
@@ -31,75 +32,75 @@ public:
 
     template <typename A1>
     inline callable call(const std::string& name,
-			const A1& a1);
+      const A1& a1);
 
     template <typename A1, typename A2>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2);
+      const A1& a1, const A2& a2);
 
     template <typename A1, typename A2, typename A3>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3);
+      const A1& a1, const A2& a2, const A3& a3);
 
     template <typename A1, typename A2, typename A3, typename A4>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9>
     inline callable call(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9);
 
     template <typename A1>
     inline void notify(const std::string& name,
-			const A1& a1);
+      const A1& a1);
 
     template <typename A1, typename A2>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2);
+      const A1& a1, const A2& a2);
 
     template <typename A1, typename A2, typename A3>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3);
+      const A1& a1, const A2& a2, const A3& a3);
 
     template <typename A1, typename A2, typename A3, typename A4>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8);
 
     template <typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9>
     inline void notify(const std::string& name,
-			const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9);
+      const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9);
 
 
 protected:
@@ -124,18 +125,18 @@ protected:
 
 template <typename M, typename P>
 struct message_rpc {
-	message_rpc() { }
-	message_rpc(msgpack::myrpc::message_type_t t,
+  message_rpc() { }
+  message_rpc(msgpack::myrpc::message_type_t t,
         msgpack::myrpc::msgid_t id,
         M m,
         P p)
         : type(t), msgid(id), method(m), param(p)
     {}
 
-	msgpack::myrpc::message_type_t type;
+  msgpack::myrpc::message_type_t type;
     msgpack::myrpc::msgid_t msgid;
-    M method; // also 'error' in Response
-    P param;  // also 'result' in Response
+    M method;
+    P param;
 
     bool is_request()  const { return type == msgpack::myrpc::REQUEST;  }
     bool is_response() const { return type == msgpack::myrpc::RESPONSE; }
@@ -162,11 +163,10 @@ callable session::call(const std::string& name)
 inline void session::notify(const std::string& name)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params());
+    msg_notify<std::string, Params> msg(name, Params());
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -194,11 +194,11 @@ inline void session::notify(const std::string& name,
     const A1& a1)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1));
+    typedef type::tuple<const A1&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -226,11 +226,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2));
+    typedef type::tuple<const A1&, const A2&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -258,11 +258,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2, A3> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2, a3));
+    typedef type::tuple<const A1&, const A2&, const A3&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2, a3));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -290,11 +290,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2, A3, A4> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2, a3, a4));
+    typedef type::tuple<const A1&, const A2&, const A3&, const A4&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2, a3, a4));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -322,11 +322,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2, A3, A4, A5> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2, a3, a4, a5));
+    typedef type::tuple<const A1&, const A2&, const A3&, const A4&, const A5&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2, a3, a4, a5));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -354,11 +354,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2, A3, A4, A5, A6> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2, a3, a4, a5, a6));
+    typedef type::tuple<const A1&, const A2&, const A3&, const A4&, const A5&, const A6&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2, a3, a4, a5, a6));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -386,11 +386,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2, A3, A4, A5, A6, A7> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2, a3, a4, a5, a6, a7));
+    typedef type::tuple<const A1&, const A2&, const A3&, const A4&, const A5&, const A6&, const A7&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2, a3, a4, a5, a6, a7));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -418,11 +418,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2, a3, a4, a5, a6, a7, a8));
+    typedef type::tuple<const A1&, const A2&, const A3&, const A4&, const A5&, const A6&, const A7&, const A8&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2, a3, a4, a5, a6, a7, a8));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
@@ -450,11 +450,11 @@ inline void session::notify(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
 {
     using namespace msgpack;
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    using namespace myrpc;
 
     msgpack::sbuffer sbuf;
-    typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8, A9> Params;
-    message_rpc<std::string, Params> msg(myrpc::NOTIFY, id, name, Params(a1, a2, a3, a4, a5, a6, a7, a8, a9));
+    typedef type::tuple<const A1&, const A2&, const A3&, const A4&, const A5&, const A6&, const A7&, const A8&, const A9&> Params;
+    msg_notify<std::string, Params> msg(name, Params(a1, a2, a3, a4, a5, a6, a7, a8, a9));
 
     msgpack::pack(sbuf, msg);
     stream->write(sbuf.data(), sbuf.size());
