@@ -4,6 +4,7 @@ Release
 myrpc.ncb
 myrpc.suo
 bin
+obj
 myrpc/rpc_test
 
 syntax: glob
