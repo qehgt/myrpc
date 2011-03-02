@@ -12,7 +12,7 @@ Includes = [
     '../Boost/include',
     ]
 
-Sources = Glob('myrpc/src/*.cpp')
+Sources = Glob('myrpc/src/*.cpp', strings=True)
 
 out_lib = b.do_lib('myrpc', Sources, Includes)
 
