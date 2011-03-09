@@ -75,10 +75,11 @@ struct session::session_impl {
 };
 
 session::session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher)
-    : current_id(0), 
+    :
+    pimpl(new session_impl()),
+    current_id(0), 
     stream(stream_object),
     dispatcher(dispatcher),
-    pimpl(new session_impl()),
     on_finish_handler(NULL)
 {
 }
