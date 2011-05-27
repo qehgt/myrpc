@@ -18,7 +18,7 @@ public:
 
     template<typename T>
     T get() { 
-        return get_object().as<T>();
+        return get_object().template as<T>();
     }
 
     void get() {
