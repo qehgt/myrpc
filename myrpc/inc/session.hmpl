@@ -6,7 +6,6 @@
 #endif
 
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/interprocess/detail/atomic.hpp>
 #include "interfaces.h"
 #include "callable.h"
 
@@ -85,7 +84,7 @@ struct message_rpc {
 
 callable session::call(const std::string& name)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
@@ -116,7 +115,7 @@ template <[%gen.template%]>
 inline callable session::call(const std::string& name,
     [%gen.args_const_ref%])
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<[%gen.types%]> Params;

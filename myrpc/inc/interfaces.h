@@ -5,13 +5,14 @@
 #include <boost/system/error_code.hpp>
 #include <boost/shared_ptr.hpp>
 #include "request.h"
+#include "atomic_ops.h"
 
 namespace msgpack {
 namespace myrpc {
 
 class session; // forward declaration
 
-typedef boost::uint32_t request_id_type;
+typedef atomic_int_type request_id_type;
 
 class read_handler_type {
 public:

@@ -6,7 +6,6 @@
 #endif
 
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/interprocess/detail/atomic.hpp>
 #include "interfaces.h"
 #include "callable.h"
 
@@ -147,7 +146,7 @@ struct message_rpc {
 
 callable session::call(const std::string& name)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<> Params;
@@ -176,7 +175,7 @@ template <typename A1>
 inline callable session::call(const std::string& name,
     const A1& a1)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1> Params;
@@ -208,7 +207,7 @@ template <typename A1, typename A2>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2> Params;
@@ -240,7 +239,7 @@ template <typename A1, typename A2, typename A3>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3> Params;
@@ -272,7 +271,7 @@ template <typename A1, typename A2, typename A3, typename A4>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4> Params;
@@ -304,7 +303,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5>
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5> Params;
@@ -336,7 +335,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6> Params;
@@ -368,7 +367,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7> Params;
@@ -400,7 +399,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8> Params;
@@ -432,7 +431,7 @@ template <typename A1, typename A2, typename A3, typename A4, typename A5, typen
 inline callable session::call(const std::string& name,
     const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
 {
-    request_id_type id = boost::interprocess::detail::atomic_inc32(&current_id);
+    request_id_type id = atomic_increment(&current_id);
 
     msgpack::sbuffer sbuf;
     typedef type::tuple<A1, A2, A3, A4, A5, A6, A7, A8, A9> Params;
