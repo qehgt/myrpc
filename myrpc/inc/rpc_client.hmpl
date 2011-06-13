@@ -1,5 +1,5 @@
-#ifndef H_MYRPC_TCP_CLIENT_H
-#define H_MYRPC_TCP_CLIENT_H
+#ifndef H_MYRPC_RPC_CLIENT_H
+#define H_MYRPC_RPC_CLIENT_H
 
 #include <boost/shared_ptr.hpp>
 #include "inc/session.h"
@@ -7,10 +7,9 @@
 namespace msgpack {
 namespace myrpc {
 
-class tcp_client {
+class rpc_client {
 public:
-    tcp_client(const char* host, const char* service_name);
-    ~tcp_client();
+    ~rpc_client();
 
     inline callable call(const std::string& name);
 
@@ -31,18 +30,16 @@ public:
 %gen_func_decl()
 
 protected:
-    struct tcp_client_impl;
-    boost::shared_ptr<tcp_client_impl> pimpl;
     boost::shared_ptr<myrpc::session> session;
 };
 
 
-inline callable tcp_client::call(const std::string& name)
+inline callable rpc_client::call(const std::string& name)
 {
     return session->call(name);
 }
 
-inline void tcp_client::notify(const std::string& name)
+inline void rpc_client::notify(const std::string& name)
 {
     session->notify(name);
 }
@@ -50,14 +47,14 @@ inline void tcp_client::notify(const std::string& name)
 %def gen_func_body()
 %varlen_each do |gen|
 template <[%gen.template%]>
-inline callable tcp_client::call(const std::string& name,
+inline callable rpc_client::call(const std::string& name,
             [%gen.args_const_ref%])
 {
     return session->call(name, [%gen.params%]);
 }
 
 template <[%gen.template%]>
-inline void tcp_client::notify(const std::string& name,
+inline void rpc_client::notify(const std::string& name,
             [%gen.args_const_ref%])
 {
     session->notify(name, [%gen.params%]);
@@ -70,4 +67,4 @@ inline void tcp_client::notify(const std::string& name,
 }  // namespace myrpc
 }  // namespace msgpack
 
-#endif // H_MYRPC_TCP_CLIENT_H
+#endif // H_MYRPC_RPC_CLIENT_H
