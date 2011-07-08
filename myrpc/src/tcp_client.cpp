@@ -6,7 +6,11 @@ namespace msgpack {
 namespace myrpc {
 
 struct tcp_client::tcp_client_impl {
-    boost::asio::io_service io;
+    tcp_client_impl()
+        : io(new boost::asio::io_service())
+    {}
+
+    boost::shared_ptr<boost::asio::io_service> io;
     boost::shared_ptr<stream_tcp_socket> socket;
     boost::thread thread;
 };
@@ -17,11 +21,11 @@ tcp_client::tcp_client(const char* host, const char* service_name, shared_dispat
     using namespace boost::asio;
     using namespace boost::asio::ip;
 
-    tcp::resolver resolver(pimpl->io);
+    tcp::resolver resolver(*pimpl->io);
     tcp::resolver::query query(tcp::v4(), host, service_name);
     tcp::resolver::iterator iterator = resolver.resolve(query);
     pimpl->socket = boost::shared_ptr<stream_tcp_socket>(new stream_tcp_socket(pimpl->io));
-    pimpl->socket->connect(*iterator);
+    pimpl->socket->get_socket().connect(*iterator);
     
     if (dispatcher.get() == NULL)
         dispatcher = shared_dispatcher(new dummy_dispatcher_type());
@@ -30,7 +34,7 @@ tcp_client::tcp_client(const char* host, const char* service_name, shared_dispat
         pimpl->socket, dispatcher));
 
     session->start();
-    pimpl->thread = boost::thread(boost::bind(&io_service::run, &pimpl->io));
+    pimpl->thread = boost::thread(boost::bind(&io_service::run, pimpl->io.get()));
 }
 
 tcp_client::~tcp_client()

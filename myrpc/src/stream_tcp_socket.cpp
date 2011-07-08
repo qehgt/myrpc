@@ -8,13 +8,13 @@ namespace myrpc {
 
 size_t stream_tcp_socket::write(const void* data, size_t size)
 {
-    return boost::asio::write(*this, boost::asio::buffer(data, size),
+    return boost::asio::write(socket, boost::asio::buffer(data, size),
         boost::asio::transfer_all());
 }
 
 void stream_tcp_socket::async_read_some(void* data, size_t size, read_handler_type* handler)
 {
-    boost::asio::ip::tcp::socket::async_read_some(boost::asio::buffer(data, size),
+    socket.async_read_some(boost::asio::buffer(data, size),
         boost::bind(&read_handler_type::handle_read, handler,
         boost::asio::placeholders::error,
         boost::asio::placeholders::bytes_transferred));
@@ -22,8 +22,7 @@ void stream_tcp_socket::async_read_some(void* data, size_t size, read_handler_ty
 
 boost::system::error_code stream_tcp_socket::close(boost::system::error_code& ec)
 {
-    boost::asio::ip::tcp::socket& s = *this;
-    return s.close(ec);
+    return socket.close(ec);
 }
 
 } // namespace myrpc {

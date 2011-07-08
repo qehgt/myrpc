@@ -10,12 +10,13 @@ namespace myrpc {
 struct tcp_server::tcp_server_impl {
     tcp_server_impl(int port, shared_dispatcher dispatcher)
         : dispatcher(dispatcher),
-        acceptor(io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+        io(new boost::asio::io_service()),
+        acceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
     {
     }
 
     msgpack::myrpc::shared_dispatcher dispatcher;
-    boost::asio::io_service io;
+    boost::shared_ptr<boost::asio::io_service> io;
     boost::asio::ip::tcp::acceptor acceptor;
     boost::thread thread;
 
@@ -36,11 +37,11 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
 
     pimpl->session_holder[session.get()] = session;
 
-    pimpl->acceptor.async_accept(*socket,
+    pimpl->acceptor.async_accept(socket->get_socket(),
         boost::bind(&tcp_server::handle_accept, this, session,
         boost::asio::placeholders::error));
 
-    pimpl->thread = boost::thread(boost::bind(&boost::asio::io_service::run, &pimpl->io));
+    pimpl->thread = boost::thread(boost::bind(&boost::asio::io_service::run, pimpl->io.get()));
 }
 
 void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system::error_code& error)
@@ -58,7 +59,7 @@ void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system
             pimpl->session_holder[s.get()] = s;
         }
 
-        pimpl->acceptor.async_accept(*socket,
+        pimpl->acceptor.async_accept(socket->get_socket(),
             boost::bind(&tcp_server::handle_accept, this, s,
             boost::asio::placeholders::error));
     }
@@ -78,7 +79,7 @@ tcp_server::~tcp_server()
         }
     }
 
-    pimpl->io.stop();
+    pimpl->io->stop();
     if (pimpl->thread.joinable())
         pimpl->thread.join();
 }
