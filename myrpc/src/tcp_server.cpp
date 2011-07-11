@@ -10,13 +10,14 @@ namespace myrpc {
 struct tcp_server::tcp_server_impl {
     tcp_server_impl(int port, shared_dispatcher dispatcher)
         : dispatcher(dispatcher),
-        io(new boost::asio::io_service()),
-        acceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+        work(new boost::asio::io_service::work(io_service)),
+        acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
     {
     }
 
     msgpack::myrpc::shared_dispatcher dispatcher;
-    boost::shared_ptr<boost::asio::io_service> io;
+    boost::asio::io_service io_service;
+    std::auto_ptr<boost::asio::io_service::work> work;
     boost::asio::ip::tcp::acceptor acceptor;
     boost::thread thread;
 
@@ -31,7 +32,7 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
     : pimpl(new tcp_server_impl(port, dispatcher))
 
 {
-    boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io));
+    boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io_service));
     boost::shared_ptr<session> session(new myrpc::session(
         socket, pimpl->dispatcher));
 
@@ -41,7 +42,7 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
         boost::bind(&tcp_server::handle_accept, this, session,
         boost::asio::placeholders::error));
 
-    pimpl->thread = boost::thread(boost::bind(&boost::asio::io_service::run, pimpl->io.get()));
+    pimpl->thread = boost::thread(boost::bind(&boost::asio::io_service::run, &pimpl->io_service));
 }
 
 void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system::error_code& error)
@@ -50,7 +51,7 @@ void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system
     {
         s->start(this);
 
-        boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io));
+        boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io_service));
         s = boost::shared_ptr<session>(new session(
             socket, pimpl->dispatcher));
 
@@ -79,7 +80,7 @@ tcp_server::~tcp_server()
         }
     }
 
-    pimpl->io->stop();
+    pimpl->work.reset();
     if (pimpl->thread.joinable())
         pimpl->thread.join();
 }
