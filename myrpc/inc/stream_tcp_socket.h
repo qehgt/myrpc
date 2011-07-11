@@ -9,8 +9,8 @@ namespace myrpc {
 
 class stream_tcp_socket : public io_stream_object {
 public:
-    stream_tcp_socket(boost::asio::io_service& io) 
-        : socket(io)
+    stream_tcp_socket(boost::shared_ptr<boost::asio::io_service> io) 
+        : io(io), socket(*io)
     {}
 
     virtual size_t write(const void* data, size_t size);
@@ -22,6 +22,7 @@ public:
     }
 
 protected:
+    boost::shared_ptr<boost::asio::io_service> io; // to guarantee that 'io' lives at least as this 'stream_tcp_socket'
     boost::asio::ip::tcp::socket socket;
 };
 

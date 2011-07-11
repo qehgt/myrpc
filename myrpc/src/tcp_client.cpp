@@ -7,10 +7,11 @@ namespace myrpc {
 
 struct tcp_client::tcp_client_impl {
     tcp_client_impl()
-        : work(new boost::asio::io_service::work(io_service))
+        : io_service(new boost::asio::io_service()),
+        work(new boost::asio::io_service::work(*io_service))
     {}
 
-    boost::asio::io_service io_service;
+    boost::shared_ptr<boost::asio::io_service> io_service;
     std::auto_ptr<boost::asio::io_service::work> work;
     boost::shared_ptr<stream_tcp_socket> socket;
     boost::thread thread;
@@ -22,7 +23,7 @@ tcp_client::tcp_client(const char* host, const char* service_name, shared_dispat
     using namespace boost::asio;
     using namespace boost::asio::ip;
 
-    tcp::resolver resolver(pimpl->io_service);
+    tcp::resolver resolver(*pimpl->io_service);
     tcp::resolver::query query(tcp::v4(), host, service_name);
     tcp::resolver::iterator iterator = resolver.resolve(query);
     pimpl->socket = boost::shared_ptr<stream_tcp_socket>(new stream_tcp_socket(pimpl->io_service));
@@ -35,15 +36,15 @@ tcp_client::tcp_client(const char* host, const char* service_name, shared_dispat
         pimpl->socket, dispatcher));
 
     session->start();
-    pimpl->thread = boost::thread(boost::bind(&io_service::run, &pimpl->io_service));
+    pimpl->thread = boost::thread(boost::bind(&io_service::run, pimpl->io_service.get()));
 }
 
 tcp_client::~tcp_client()
 {
+    boost::system::error_code ec;
+    pimpl->socket->close(ec);
     pimpl->work.reset();
     if (pimpl->thread.joinable()) {
-        boost::system::error_code ec;
-        pimpl->socket->close(ec);
         pimpl->thread.join();
     }
 }

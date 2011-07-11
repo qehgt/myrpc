@@ -10,13 +10,14 @@ namespace myrpc {
 struct tcp_server::tcp_server_impl {
     tcp_server_impl(int port, shared_dispatcher dispatcher)
         : dispatcher(dispatcher),
-        work(new boost::asio::io_service::work(io_service)),
-        acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+        io_service(new boost::asio::io_service()),
+        work(new boost::asio::io_service::work(*io_service)),
+        acceptor(*io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
     {
     }
 
     msgpack::myrpc::shared_dispatcher dispatcher;
-    boost::asio::io_service io_service;
+    boost::shared_ptr<boost::asio::io_service> io_service;
     std::auto_ptr<boost::asio::io_service::work> work;
     boost::asio::ip::tcp::acceptor acceptor;
     boost::thread thread;
@@ -42,7 +43,7 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
         boost::bind(&tcp_server::handle_accept, this, session,
         boost::asio::placeholders::error));
 
-    pimpl->thread = boost::thread(boost::bind(&boost::asio::io_service::run, &pimpl->io_service));
+    pimpl->thread = boost::thread(boost::bind(&boost::asio::io_service::run, pimpl->io_service.get()));
 }
 
 void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system::error_code& error)
