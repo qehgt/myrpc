@@ -12,3 +12,4 @@ syntax: glob
 *.o
 .sconsign.dblite
 .emacs.desktop
+*.ncb
