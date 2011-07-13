@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;&quot;$(ProjectDir)\..\..&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\..\..&quot;;&quot;$(ProjectDir)..\..\..\..\local_dev_root\include&quot;;&quot;$(ProjectDir)..\..\..\..\Boost\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MP_MEMORY_BOOST_ORG;_WIN32_WINNT=0x0600"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
