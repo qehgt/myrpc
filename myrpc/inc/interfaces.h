@@ -20,18 +20,12 @@ public:
     virtual void handle_read(const boost::system::error_code& error, size_t bytes_transferred) = 0;
 };
 
-class on_finish_handler_type {
-public:
-    virtual ~on_finish_handler_type () {}
-    virtual void on_session_finish(session* s) = 0;
-};
-
 class io_stream_object {
 public:
     virtual ~io_stream_object() {}
 
     virtual size_t write(const void* data, size_t size) = 0; // can throw exceptions
-    virtual void async_read_some(void* data, size_t size, read_handler_type* handler) = 0;
+    virtual void async_read_some(void* data, size_t size, boost::shared_ptr<read_handler_type> handler) = 0;
     virtual boost::system::error_code close(boost::system::error_code& ec) = 0;
 };
 

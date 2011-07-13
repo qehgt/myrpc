@@ -6,7 +6,7 @@
 namespace msgpack {
 namespace myrpc {
 
-class tcp_server : protected on_finish_handler_type {
+class tcp_server {
 public:
     tcp_server(int port, shared_dispatcher dispatcher);
     ~tcp_server();

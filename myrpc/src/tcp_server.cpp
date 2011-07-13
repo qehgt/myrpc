@@ -21,12 +21,6 @@ struct tcp_server::tcp_server_impl {
     std::auto_ptr<boost::asio::io_service::work> work;
     boost::asio::ip::tcp::acceptor acceptor;
     boost::thread thread;
-
-    typedef boost::shared_ptr<msgpack::myrpc::session> created_session;
-    typedef std::map<msgpack::myrpc::session*, created_session> session_holder_type;
-    session_holder_type session_holder;
-    typedef boost::mutex mutex_type;
-    mutex_type mutex;
 };
 
 tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
@@ -36,8 +30,6 @@ tcp_server::tcp_server(int port, shared_dispatcher dispatcher)
     boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io_service));
     boost::shared_ptr<session> session(new myrpc::session(
         socket, pimpl->dispatcher));
-
-    pimpl->session_holder[session.get()] = session;
 
     pimpl->acceptor.async_accept(socket->get_socket(),
         boost::bind(&tcp_server::handle_accept, this, session,
@@ -50,16 +42,10 @@ void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system
 {
     if (!error)
     {
-        s->start(this);
-
+        s->start();
         boost::shared_ptr<stream_tcp_socket> socket(new stream_tcp_socket(pimpl->io_service));
         s = boost::shared_ptr<session>(new session(
             socket, pimpl->dispatcher));
-
-        {
-            tcp_server_impl::mutex_type::scoped_lock lock(pimpl->mutex);
-            pimpl->session_holder[s.get()] = s;
-        }
 
         pimpl->acceptor.async_accept(socket->get_socket(),
             boost::bind(&tcp_server::handle_accept, this, s,
@@ -70,28 +56,11 @@ void tcp_server::handle_accept(boost::shared_ptr<session> s, const boost::system
 tcp_server::~tcp_server()
 {
     pimpl->acceptor.close();
+    pimpl->work.reset(); // to wait all pending operations
 
-    {
-        tcp_server_impl::mutex_type::scoped_lock lock(pimpl->mutex);
-        for (tcp_server_impl::session_holder_type::iterator i = pimpl->session_holder.begin();
-            i != pimpl->session_holder.end();
-            ++i)
-        {
-            (*i).second->stop();
-        }
-    }
-
-    pimpl->work.reset();
     if (pimpl->thread.joinable())
         pimpl->thread.join();
 }
-
-void tcp_server::on_session_finish(session* s)
-{
-    tcp_server_impl::mutex_type::scoped_lock lock(pimpl->mutex);
-    pimpl->session_holder.erase(s);
-}
-
 
 } // namespace rpc {
 } // namespace msgpack {

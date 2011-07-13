@@ -79,14 +79,13 @@ session::session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myr
     pimpl(new session_impl()),
     current_id(0), 
     stream(stream_object),
-    dispatcher(dispatcher),
-    on_finish_handler(NULL)
+    dispatcher(dispatcher)
 {
 }
 
 session::~session()
 {
-    stop();
+    dispatcher->on_session_stop();
 }
 
 void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
@@ -161,12 +160,11 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
         }
 
         pimpl->unpacker.reserve_buffer(pimpl->max_length);
-        stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
+        stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, shared_from_this());
     }
     else {
         boost::system::error_code ec = error;
         stream->close(ec);
-        stop();
 
         // set value for orphaned promises
         session_impl::mutex_type::scoped_lock lock(pimpl->mutex);
@@ -181,8 +179,6 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
             }
         }
     }
-
-    if (error && on_finish_handler) on_finish_handler->on_session_finish(this);
 }
 
 void session::remove_unused_callable(request_id_type id)
@@ -237,16 +233,22 @@ callable session::create_call(request_id_type id)
     return callable(boost::shared_ptr<callable_imp>(new callable_imp(id, f, shared_from_this())));
 }
 
-void session::start(on_finish_handler_type* on_finish_handler)
+void session::start()
 {
-    dispatcher->on_start(shared_from_this());
-    this->on_finish_handler = on_finish_handler;
-    stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, this);
-}
-
-void session::stop()
-{
-    dispatcher->on_session_stop();
+    try {
+        dispatcher->on_start(shared_from_this());
+    }
+    catch (const boost::exception& e)
+    {
+        notify("error", boost::diagnostic_information(e));
+        return;
+    }
+    catch (const std::exception& e)
+    {
+        notify("error", boost::diagnostic_information(e));
+        return;
+    }
+    stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, shared_from_this());
 }
 
 boost::shared_ptr<io_stream_object> session::get_stream_object()

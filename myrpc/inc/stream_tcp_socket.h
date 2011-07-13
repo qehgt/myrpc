@@ -14,7 +14,7 @@ public:
     {}
 
     virtual size_t write(const void* data, size_t size);
-    virtual void async_read_some(void* data, size_t size, read_handler_type* handler);
+    virtual void async_read_some(void* data, size_t size, boost::shared_ptr<read_handler_type> handler);
     virtual boost::system::error_code close(boost::system::error_code& ec);
 
     boost::asio::ip::tcp::socket& get_socket() {
