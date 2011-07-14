@@ -85,7 +85,14 @@ session::session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myr
 
 session::~session()
 {
-    dispatcher->on_session_stop();
+    try{
+        if (dispatcher)
+            dispatcher->on_session_stop();
+    }
+    catch(...)
+    {
+        // TODO: add logging
+    }
 }
 
 void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
@@ -240,12 +247,26 @@ void session::start()
     }
     catch (const boost::exception& e)
     {
-        notify("error", boost::diagnostic_information(e));
+        try{
+            notify("error", boost::diagnostic_information(e));
+            dispatcher.reset();
+        }
+        catch(...)
+        {
+            // TODO: add logging
+        }
         return;
     }
     catch (const std::exception& e)
     {
-        notify("error", boost::diagnostic_information(e));
+        try{
+            notify("error", boost::diagnostic_information(e));
+            dispatcher.reset();
+        }
+        catch(...)
+        {
+            // TODO: add logging
+        }
         return;
     }
     stream->async_read_some(pimpl->unpacker.buffer(), pimpl->max_length, shared_from_this());
