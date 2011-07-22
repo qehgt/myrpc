@@ -20,7 +20,7 @@ typedef int atomic_int_type;
 static inline
 atomic_int_type atomic_increment(volatile atomic_int_type* p)
 {
-  return  __gnu_cxx::__exchange_and_add(p, 1) + 1;
+  return  __gnu_cxx::__exchange_and_add(p, 1);
 }
 
 #else
