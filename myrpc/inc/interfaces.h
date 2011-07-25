@@ -63,6 +63,8 @@ public:
     }
 };
 
+/// Custom loggers should implement this interface
+/// NB: only SEV_ERROR used in myrpc library
 class logger_type {
 public:
     enum severity_type {
