@@ -6,19 +6,22 @@ namespace msgpack {
 namespace myrpc {
 
 struct tcp_client::tcp_client_impl {
-    tcp_client_impl()
+    tcp_client_impl(boost::shared_ptr<logger_type> logger)
         : io_service(new boost::asio::io_service()),
-        work(new boost::asio::io_service::work(*io_service))
+        work(new boost::asio::io_service::work(*io_service)),
+        logger(logger)
     {}
 
     boost::shared_ptr<boost::asio::io_service> io_service;
     std::auto_ptr<boost::asio::io_service::work> work;
     boost::shared_ptr<stream_tcp_socket> socket;
     boost::thread thread;
+    boost::shared_ptr<logger_type> logger;
 };
 
-tcp_client::tcp_client(const char* host, const char* service_name, shared_dispatcher dispatcher)
-    : pimpl(new tcp_client_impl())
+tcp_client::tcp_client(const char* host, const char* service_name, shared_dispatcher dispatcher,
+                       boost::shared_ptr<logger_type> logger)
+    : pimpl(new tcp_client_impl(logger))
 {
     using namespace boost::asio;
     using namespace boost::asio::ip;
@@ -33,7 +36,7 @@ tcp_client::tcp_client(const char* host, const char* service_name, shared_dispat
         dispatcher = shared_dispatcher(new dummy_dispatcher_type());
 
     session = boost::shared_ptr<myrpc::session>(new myrpc::session(
-        pimpl->socket, dispatcher));
+        pimpl->socket, dispatcher, logger));
 
     session->start();
     pimpl->thread = boost::thread(boost::bind(&io_service::run, pimpl->io_service.get()));

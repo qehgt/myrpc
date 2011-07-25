@@ -8,7 +8,9 @@ namespace myrpc {
 
 class tcp_client : public rpc_client {
   public:
-    tcp_client(const char* host, const char* service_name, shared_dispatcher dispatcher = shared_dispatcher());
+    tcp_client(const char* host, const char* service_name, 
+        shared_dispatcher dispatcher = shared_dispatcher(),
+        boost::shared_ptr<logger_type> logger = boost::shared_ptr<logger_type>());
     ~tcp_client();
     
   protected:

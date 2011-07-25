@@ -63,6 +63,23 @@ public:
     }
 };
 
+class logger_type {
+public:
+    enum severity_type {
+        SEV_EMERGENCY       =   0,   //< system is unusable
+        SEV_ALERT           =   1,   //< action must be taken immediately
+        SEV_CRITICAL        =   2,   //< critical conditions
+        SEV_ERROR           =   3,   //< error conditions
+        SEV_WARNING         =   4,   //< warning conditions
+        SEV_NOTICE          =   5,   //< normal but significant condition
+        SEV_INFORMATIONAL   =   6,   //< informational
+        SEV_DEBUG           =   7    //< debug-level messages
+    };
+
+    virtual void log(severity_type level, const char* message)
+    { // default implementation do nothing
+    }
+};
 
 } // namespace myrpc {
 } // namespace msgpack {

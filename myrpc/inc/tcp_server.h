@@ -8,7 +8,7 @@ namespace myrpc {
 
 class tcp_server {
 public:
-    tcp_server(int port, shared_dispatcher dispatcher);
+    tcp_server(int port, shared_dispatcher dispatcher, boost::shared_ptr<logger_type> logger = boost::shared_ptr<logger_type>());
     ~tcp_server();
 
 protected:

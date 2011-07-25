@@ -16,7 +16,8 @@ struct msgpack_object_holder; // forward declaration
 
 class session : public boost::enable_shared_from_this<session>, public read_handler_type, public remove_callable_handler_type {
 public:
-    session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher);
+    session(boost::shared_ptr<io_stream_object> stream_object, msgpack::myrpc::shared_dispatcher dispatcher,
+        boost::shared_ptr<logger_type> logger = boost::shared_ptr<logger_type>());
     ~session();
 
     boost::shared_ptr<io_stream_object> get_stream_object();
@@ -112,11 +113,10 @@ protected:
     void remove_unused_callable(request_id_type id);
 
     struct session_impl;
-    boost::shared_ptr<session_impl> pimpl;
+    boost::shared_ptr<session_impl> pi;
 
     volatile request_id_type current_id;
     boost::shared_ptr<io_stream_object> stream;
-    msgpack::myrpc::shared_dispatcher dispatcher;
 };
 
 template <typename M, typename P>
