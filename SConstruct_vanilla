@@ -1,0 +1,17 @@
+Includes = [
+    'myrpc',
+    '../OUT/include',           # path to msgpack if it is not installed into system  
+    ]
+
+Sources = Glob('myrpc/src/*.c*', strings=True)
+
+b = Environment(CPPFLAGS='-O2', CPPPATH=Includes)
+
+out_lib = b.Library('myrpc', Sources)
+
+headers = Glob('myrpc/inc/*.h')
+
+# b.Install(b.install_lib_path, out_lib)
+# b.env.Install(b.install_inc_path + '/myrpc', headers)
+
+
