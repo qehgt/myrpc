@@ -2,6 +2,10 @@
 #define H_MYRPC_ATOMIC_OPS_H
 
 /// @file Declaration of type/functions for atomic increment/decrement
+/// For all platforms:
+///   atomic_int_type i = 42;
+///   atomic_int_type j = atomic_increment(&i);
+///   assert(i==43 && j==42);
 
 #if defined(__GNUC__) && ((__GNUC__*10 + __GNUC_MINOR__) < 41)
 #  include <bits/atomicity.h>
