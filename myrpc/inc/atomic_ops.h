@@ -11,6 +11,10 @@
 #  include <bits/atomicity.h>
 #elif defined(__GNUC__) && ((__GNUC__*10 + __GNUC_MINOR__) >= 41)
 # // use GCC builtins 
+#elif defined(_WIN32) // use 'InterlockedIncrement' function
+#  define WIN32_LEAN_AND_MEAN
+#  define VC_EXTRALEAN
+#  include <windows.h>
 #else
 #  include <boost/cstdint.hpp>
 #  include <boost/interprocess/detail/atomic.hpp>
@@ -37,6 +41,15 @@ static inline
 atomic_int_type atomic_increment(volatile atomic_int_type* p)
 {
   return __sync_fetch_and_add(p, 1);
+}
+
+#elif defined(_WIN32) // use 'InterlockedIncrement' function
+typedef LONG atomic_int_type;
+
+static inline
+atomic_int_type atomic_increment(volatile atomic_int_type* p)
+{
+  return InterlockedIncrement(p) - 1;
 }
 
 #else
