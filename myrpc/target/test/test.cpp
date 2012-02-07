@@ -3,6 +3,7 @@
 #include "inc/session.h"
 #include "inc/tcp_client.h"
 #include "inc/tcp_server.h"
+#include "inc/exception.h"
 #include <boost/thread.hpp>
 #include <boost/make_shared.hpp>
 
@@ -42,31 +43,43 @@ void run_client_test()
     try {
         tcp_client cli("localhost", port);
 
-        callable cc = cli.call("add", -12, 13);
+        int a = -12;
+        int b = 13;
+        callable cc = cli.call("add", a, b);
         int i = cc.get<int>();
-        printf("i = %d\n", i);
         try {
             i = cli.call("add", 12).get<int>();
         }
+        catch (const argument_error&)
+        {
+            printf("OK: got expected argument_error\n");
+        }
         catch (const std::exception& e)
         {
-            printf("internal catch: %s\n", e.what());
+            printf("FAIL: unexpected exception: %s\n", e.what());
         }
 
-        printf("i = %d\n", i);
-        std::string str = cli.call("echo", std::string("aaaBBB")).get<std::string>();
-        printf("str = %s\n", str.c_str());
+        if (i == (a + b))
+            printf("OK: add: i = %d\n", i);
+        else
+            printf("FAIL: add: i = %d\n", i);
+        std::string s("aaaBBB");
+        std::string str = cli.call("echo", s).get<std::string>();
+        if (s == str)
+            printf("OK: echo: str = %s\n", str.c_str());
+        else
+            printf("FAIL: echo: str = %s\n", str.c_str());
     }
     catch (const boost::exception& e)
     {
-        printf("boost ex: %s\n", boost::diagnostic_information(e).c_str());
+        printf("FAIL: boost ex: %s\n", boost::diagnostic_information(e).c_str());
     }
     catch (const std::exception& e)
     {
-        printf("ex: %s\n", e.what());
+        printf("FAIL: %s\n", e.what());
     }
     catch (...) {
-        printf("client: unknown ex=\n");
+        printf("client: unknown ex\n");
     }
 }
 
