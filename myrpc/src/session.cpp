@@ -165,22 +165,32 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
 {
     using namespace msgpack;
     using namespace msgpack::myrpc;
+    bool failed = false;
     if (!error)
     {
-        // process input data...
-        pi->unpacker.buffer_consumed(bytes_transferred);
-        msgpack::unpacked result;
-        while (pi->unpacker.next(&result)) {
-            msgpack::object obj = result.get();
+        try {
+            // process input data...
+            pi->unpacker.buffer_consumed(bytes_transferred);
+            msgpack::unpacked result;
+            while (pi->unpacker.next(&result)) {
+                msgpack::object obj = result.get();
 
-            std::auto_ptr<msgpack::zone> z = result.zone();
-            process_message(obj, z);
+                std::auto_ptr<msgpack::zone> z = result.zone();
+                process_message(obj, z);
+            }
+
+            pi->unpacker.reserve_buffer(pi->max_length);
+            stream->async_read_some(pi->unpacker.buffer(), pi->max_length, shared_from_this());
+            return;
         }
-
-        pi->unpacker.reserve_buffer(pi->max_length);
-        stream->async_read_some(pi->unpacker.buffer(), pi->max_length, shared_from_this());
+        catch(std::exception& e)
+        {
+            pi->logger->log(pi->logger->SEV_ERROR, ("msgpack handle_read() error: " + 
+                boost::diagnostic_information(e)).c_str());
+            failed = true;
+        }
     }
-    else {
+    if (error || failed) {
         boost::system::error_code ec = error;
         stream->close(ec);
 
