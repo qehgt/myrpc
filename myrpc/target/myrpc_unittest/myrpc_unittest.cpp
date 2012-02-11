@@ -93,7 +93,7 @@ TEST(EchoServer, NoMethodError)
 	} catch(const argument_error& e) {
 		ADD_FAILURE() << "argument_error exception " << e.what();
 	}	
-	catch (const std::exception&)
+	catch (const no_method_error&)
 	{
 		SUCCEED();
 		return;
