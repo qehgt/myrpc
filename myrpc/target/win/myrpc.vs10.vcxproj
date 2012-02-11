@@ -64,16 +64,16 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>E:\dev\CoreRelated_CBL\Boost\include;F:\Projects\msgpack_all\OUT\include;$(ProjectDir)\..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\..\..\..\..\msgpack\cpp\include;..\..\..\..\..\msgpack\cpp\include\msgpack\include\cpp\msgpack;..\..\..\..\..\..\..\boost\boost_1_48\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Lib>
-      <OutputFile>$(OutDir)bin\i386_win\$(ProjectName).lib</OutputFile>
+      <OutputFile>myrpc.lib</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
