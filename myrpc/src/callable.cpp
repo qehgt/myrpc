@@ -1,3 +1,4 @@
+#include <boost/date_time.hpp>
 #include "inc/callable.h"
 #include "inc/session.h"
 #include "inc/callable_imp.h"
@@ -13,9 +14,40 @@ callable_imp::~callable_imp()
     }
 }
 
+
+callable::~callable()
+{
+}
+
+
 msgpack::object callable::get_object()
 {
     return c->get_future().get().obj;
+}
+
+
+/// Checks to see if the asynchronous result is set.
+bool callable::is_ready() const
+{
+    return c->get_future().is_ready();
+}
+
+
+/// Wait until the result is ready
+void callable::wait() const
+{
+    return c->get_future().wait();
+}
+    
+
+/// Wait until the result is ready, or the time specified by 'ms' has elapsed
+/// @param ms - time in milliseconds
+bool callable::timed_wait(unsigned ms)
+{
+    using namespace boost::posix_time;
+    time_duration td = milliseconds(ms);
+    
+    return c->get_future().timed_wait(td);
 }
 
 
