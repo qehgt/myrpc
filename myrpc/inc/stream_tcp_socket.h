@@ -3,6 +3,7 @@
 
 #include <boost/asio.hpp>
 #include "interfaces.h"
+#include <boost/thread.hpp>
 
 namespace msgpack {
 namespace myrpc {
@@ -24,6 +25,9 @@ public:
 protected:
     boost::shared_ptr<boost::asio::io_service> io; // to guarantee that 'io' lives at least as this 'stream_tcp_socket'
     boost::asio::ip::tcp::socket socket;
+
+    typedef boost::mutex mutex_type;
+    mutex_type mutex;
 };
 
 } // namespace rpc {

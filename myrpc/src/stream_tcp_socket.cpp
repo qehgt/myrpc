@@ -8,8 +8,8 @@ namespace myrpc {
 
 size_t stream_tcp_socket::write(const void* data, size_t size)
 {
-    return boost::asio::write(socket, boost::asio::buffer(data, size),
-        boost::asio::transfer_all());
+    mutex_type::scoped_lock lock(mutex);
+    return boost::asio::write(socket, boost::asio::buffer(data, size));
 }
 
 void stream_tcp_socket::async_read_some(void* data, size_t size, boost::shared_ptr<read_handler_type> handler)
