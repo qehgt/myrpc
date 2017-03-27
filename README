@@ -1,12 +1,15 @@
 <!-- -*- markdown -*- -->
 
-MessagePack-myRPC
+MessagePack-myRPC2
 =================
 
 ## Overview
 
-MessagePack-myRPC is an RPC library that uses [MessagePack](http://msgpack.org/) v.2 for object serialization and 
-boost::asio for communication and a loop processing.
+MessagePack-myRPC2 is an RPC library that uses [MessagePack](http://msgpack.org/) v.2 for object serialization and 
+boost::asio for communication and loop processing.
+
+## Supported platforms
+Windows, *nix
 
 ## License
 
