@@ -112,7 +112,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     msg_rpc rpc;
 
     try {
-      obj.convert(&rpc);
+      obj.convert(rpc);
     }
     catch (const std::exception& e) {
         pi->logger->log(pi->logger->SEV_ERROR, ("msgpack convert() error: " + 
@@ -125,7 +125,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     case REQUEST: 
         {
             msg_request<object, object> req;
-            obj.convert(&req);
+            obj.convert(req);
             shared_request sr(new request_impl(
                 shared_message_sendable(new boost_message_sendable(*stream)),
                 req.msgid, req.method, req.param, z));
@@ -136,7 +136,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     case RESPONSE: 
         {
             msg_response<object, object> res;
-            obj.convert(&res);
+            obj.convert(res);
 
             if (res.error.is_nil())
                 process_response(res.msgid, res.result, z);
@@ -148,7 +148,7 @@ void session::process_message(msgpack::object obj, msgpack::myrpc::auto_zone z)
     case NOTIFY: 
         {
             msg_notify<object, object> notify;
-            obj.convert(&notify);
+            obj.convert(notify);
             shared_request sr(new request_impl(
                 shared_message_sendable(new boost_message_sendable(*stream)),
                 0, notify.method, notify.param, z));
@@ -172,7 +172,7 @@ void session::handle_read(const boost::system::error_code& error, size_t bytes_t
             // process input data...
             pi->unpacker.buffer_consumed(bytes_transferred);
             msgpack::unpacked result;
-            while (pi->unpacker.next(&result)) {
+            while (pi->unpacker.next(result)) {
                 msgpack::object obj = result.get();
 
                 std::auto_ptr<msgpack::zone> z = result.zone();

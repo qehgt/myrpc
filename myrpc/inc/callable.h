@@ -23,7 +23,7 @@ public:
     }
 
     void get() {
-        get_object().as<msgpack::type::nil>();
+        get_object().as<msgpack::type::nil_t>();
     }
 
     /// Checks to see if the asynchronous result is set.

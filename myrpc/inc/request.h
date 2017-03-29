@@ -141,14 +141,14 @@ inline void request::call(Result& res, Error& err, shared_zone z)
 template <typename Result>
 void request::result(Result res)
 {
-	msgpack::type::nil err;
+	msgpack::type::nil_t err;
 	call(res, err);
 }
 
 template <typename Result>
 void request::result(Result res, auto_zone z)
 {
-	msgpack::type::nil err;
+	msgpack::type::nil_t err;
 	shared_zone sz(z.release());
 	call(res, err, sz);
 }
@@ -156,28 +156,28 @@ void request::result(Result res, auto_zone z)
 template <typename Result>
 void request::result(Result res, shared_zone z)
 {
-	msgpack::type::nil err;
+	msgpack::type::nil_t err;
 	call(res, err, z);
 }
 
 inline void request::result_nil()
 {
-	msgpack::type::nil res;
-	msgpack::type::nil err;
+	msgpack::type::nil_t res;
+	msgpack::type::nil_t err;
 	call(res, err);
 }
 
 template <typename Error>
 void request::error(Error err)
 {
-	msgpack::type::nil res;
+	msgpack::type::nil_t res;
 	call(res, err);
 }
 
 template <typename Error>
 void request::error(Error err, auto_zone z)
 {
-	msgpack::type::nil res;
+	msgpack::type::nil_t res;
 	shared_zone sz(z.release());
 	call(res, err, sz);
 }
@@ -185,7 +185,7 @@ void request::error(Error err, auto_zone z)
 template <typename Error>
 void request::error(Error err, shared_zone z)
 {
-	msgpack::type::nil res;
+	msgpack::type::nil_t res;
 	call(res, err, z);
 }
 

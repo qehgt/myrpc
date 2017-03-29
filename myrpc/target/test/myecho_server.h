@@ -11,26 +11,26 @@ public:
     {
         try {
             std::string method;
-            req.method().convert(&method);
+            req.method().convert(method);
 
             if (method == "add") {
                 msgpack::type::tuple<int, int> params;
-                req.params().convert(&params);
+                req.params().convert(params);
                 add(req, params.get<0>(), params.get<1>());
 
             } else if (method == "echo") {
                 msgpack::type::tuple<std::string> params;
-                req.params().convert(&params);
+                req.params().convert(params);
                 echo(req, params.get<0>());
 
             } else if (method == "echo_huge") {
                 msgpack::type::tuple<msgpack::type::raw_ref> params;
-                req.params().convert(&params);
+                req.params().convert(params);
                 echo_huge(req, params.get<0>());
 
             } else if (method == "err") {
                 msgpack::type::tuple<> params;
-                req.params().convert(&params);
+                req.params().convert(params);
                 err(req);
 
             } else {
