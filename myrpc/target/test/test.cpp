@@ -48,7 +48,7 @@ void run_client_test()
         callable cc = cli.call("add", a, b);
         int i = cc.get<int>();
         try {
-            i = cli.call("add", 12).get<int>();
+            i = cli.call("add", std::string("non-int"), std::string("another string")).get<int>();
         }
         catch (const argument_error&)
         {
