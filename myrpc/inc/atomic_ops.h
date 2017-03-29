@@ -12,8 +12,9 @@
 #elif defined(__GNUC__) && ((__GNUC__*10 + __GNUC_MINOR__) >= 41)
 # // use GCC builtins 
 #elif defined(_WIN32) // use 'InterlockedIncrement' function
-#  define WIN32_LEAN_AND_MEAN
-#  define VC_EXTRALEAN
+#  if !defined(WIN32_LEAN_AND_MEAN)
+#    define WIN32_LEAN_AND_MEAN
+#  endif /* WIN32_LEAN_AND_MEAN */
 #  include <windows.h>
 #else
 #  include <boost/cstdint.hpp>
