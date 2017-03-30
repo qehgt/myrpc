@@ -11,6 +11,24 @@ boost::asio for communication and loop processing.
 ## Supported platforms
 Windows, *nix
 
+## Build
+Linux:
+
+    $ cd myrpc
+    $ mkdir build
+    $ cd build
+    $ cmake ../myrpc
+    $ make
+
+Windows:
+
+    > cd myrpc
+    > mkdir build
+    > cmake ..\myrpc
+    > msbuild myrpc2.vcxproj
+
+Also, one can call `cmake ..\myrpc -DMSGPACK_INCLUDE_DIR:PATH=C:\Projects\msgpack\msgpack-c\include` to provide custom path to `msgpack-c` library.
+
 ## License
 
    Licensed under the Apache License, Version 2.0 (the "License");
